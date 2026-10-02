@@ -12,6 +12,10 @@ case "$role" in
     ;;
   *)
     python manage.py migrate --noinput
+    # Bootstrap the first admin from DJANGO_SUPERUSER_* (no-op when it already exists).
+    if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
+      python manage.py createsuperuser --noinput --moodle_username "$DJANGO_SUPERUSER_USERNAME" 2>/dev/null || true
+    fi
     exec daphne -b 0.0.0.0 -p "${PORT:-8000}" config.asgi:application
     ;;
 esac
