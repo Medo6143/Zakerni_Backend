@@ -7,6 +7,7 @@ network failures, per CLAUDE.md section 5.
 
 from __future__ import annotations
 
+import logging
 import time
 
 import httpx
@@ -22,6 +23,8 @@ from apps.moodle.protocols import (
     MoodleQuiz,
     SiteInfo,
 )
+
+logger = logging.getLogger(__name__)
 
 _RETRIABLE_STATUS = {502, 503, 504}
 _TOKEN_ERRORS = {"invalidtoken", "accessexception"}
@@ -98,7 +101,19 @@ class HttpMoodleClient:
         if response.status_code >= 500:
             raise LmsUnavailable()
 
-        data = response.json()
+        try:
+            data = response.json()
+        except ValueError as exc:
+            # Never log the URL: its query string holds the password.
+            logger.warning(
+                "Moodle token endpoint returned non-JSON: HTTP %s, content-type %r, %d bytes",
+                response.status_code,
+                response.headers.get("content-type", ""),
+                len(response.content),
+            )
+            raise LmsUnavailable(details={"moodle_error": "non_json_response"}) from exc
+        if not isinstance(data, dict):
+            raise LmsUnavailable(details={"moodle_error": "unexpected_response"})
         if "token" not in data:
             error_code = data.get("errorcode", "")
             if error_code in {"invalidlogin", "missingusername", "missingpassword"}:
