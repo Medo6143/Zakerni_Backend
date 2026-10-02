@@ -1,0 +1,94 @@
+{% load i18n %}
+{% if original %}
+<div id="report-live-thread" class="border border-base-200 rounded-default shadow-xs mb-8 dark:border-base-800">
+    <h2 class="border-b border-base-200 font-semibold px-4 py-3 text-font-important-light dark:border-base-800 dark:text-font-important-dark">
+        {% trans "Live conversation" %}
+        <span id="report-live-status" class="font-normal ms-2 text-sm"></span>
+    </h2>
+    <div id="report-live-messages" class="flex flex-col gap-2 max-h-96 overflow-y-auto p-4">
+        {% for reply in original.replies.all %}
+            <div class="rounded-default px-3 py-2 {% if reply.is_staff %}bg-primary-50 dark:bg-primary-900/30 self-end{% else %}bg-base-100 dark:bg-base-800 self-start{% endif %}" data-reply-id="{{ reply.pk }}">
+                <div class="text-xs opacity-70">{% if reply.is_staff %}{% trans "Staff" %}{% else %}{% trans "Student" %}{% endif %} &middot; {{ reply.created_at|date:"Y-m-d H:i" }}</div>
+                <div class="whitespace-pre-line">{{ reply.body }}</div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="border-t border-base-200 flex gap-2 p-4 dark:border-base-800">
+        {# No "name": the text never goes into the admin form submission. #}
+        <textarea id="report-live-input" rows="2" maxlength="5000" class="border border-base-200 grow px-3 py-2 rounded-default dark:bg-base-900 dark:border-base-700" placeholder="{% trans 'Write a reply to the student' %}"></textarea>
+        <button type="button" id="report-live-send" class="bg-primary-600 font-medium px-4 py-2 rounded-default text-white">{% trans "Send" %}</button>
+    </div>
+    <div id="report-live-error" class="px-4 pb-4 text-red-600 text-sm"></div>
+</div>
+{{ live_thread_i18n|json_script:"report-live-i18n" }}
+<script>
+(function () {
+    var reportId = "{{ original.pk }}";
+    var i18n = JSON.parse(document.getElementById("report-live-i18n").textContent);
+    var list = document.getElementById("report-live-messages");
+    var input = document.getElementById("report-live-input");
+    var button = document.getElementById("report-live-send");
+    var statusEl = document.getElementById("report-live-status");
+    var errorEl = document.getElementById("report-live-error");
+    var socket = null;
+    var retry = 0;
+
+    function scrollDown() { list.scrollTop = list.scrollHeight; }
+
+    function append(reply) {
+        if (list.querySelector('[data-reply-id="' + reply.id + '"]')) { return; }
+        var row = document.createElement("div");
+        row.dataset.replyId = reply.id;
+        row.className = "rounded-default px-3 py-2 " + (reply.is_staff
+            ? "bg-primary-50 dark:bg-primary-900/30 self-end"
+            : "bg-base-100 dark:bg-base-800 self-start");
+        var meta = document.createElement("div");
+        meta.className = "text-xs opacity-70";
+        meta.textContent = (reply.is_staff ? i18n.staff : i18n.student) + " · " +
+            new Date(reply.created_at).toLocaleString();
+        var body = document.createElement("div");
+        body.className = "whitespace-pre-line";
+        body.textContent = reply.body;
+        row.appendChild(meta);
+        row.appendChild(body);
+        list.appendChild(row);
+        scrollDown();
+    }
+
+    function connect() {
+        var scheme = window.location.protocol === "https:" ? "wss://" : "ws://";
+        socket = new WebSocket(scheme + window.location.host + "/ws/v1/reports/" + reportId + "/");
+        socket.onopen = function () { retry = 0; statusEl.textContent = i18n.connected; };
+        socket.onmessage = function (event) {
+            var data = JSON.parse(event.data);
+            if (data.type === "reply.created") { errorEl.textContent = ""; append(data.reply); }
+            if (data.type === "error") { errorEl.textContent = data.error.message; }
+        };
+        socket.onclose = function (event) {
+            statusEl.textContent = i18n.disconnected;
+            if (event.code === 4401 || event.code === 4403) { return; }
+            retry = Math.min(retry + 1, 6);
+            window.setTimeout(connect, 1000 * Math.pow(2, retry - 1));
+        };
+    }
+
+    function send() {
+        var body = input.value.trim();
+        if (!body) { return; }
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+            errorEl.textContent = i18n.disconnected;
+            return;
+        }
+        socket.send(JSON.stringify({type: "message", body: body}));
+        input.value = "";
+    }
+
+    button.addEventListener("click", send);
+    input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); send(); }
+    });
+    scrollDown();
+    connect();
+})();
+</script>
+{% endif %}

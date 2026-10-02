@@ -1,0 +1,77 @@
+[
+  {
+    "IsValid": true,
+    "date": "2026-10-04",
+    "Event_Type": "1",
+    "Start_Time": "10:00",
+    "End_Time": "12:00",
+    "Course_Part_Code": "M110",
+    "E_Location_Name": "Room 101",
+    "A_Location_Name": "Qa'a 101",
+    "E_Lecturer_Name": "Dr. Tutor",
+    "A_Lecturer_Name": "Dr. Tutor AR",
+    "Exam_Name": null,
+    "Event_Link": null,
+    "UnknownFutureField": {"nested": true}
+  },
+  {
+    "IsValid": true,
+    "date": "2026-10-11T00:00:00",
+    "Event_Type": "1",
+    "Start_Time": "10:00:00",
+    "End_Time": "12:00:00",
+    "Course_Part_Code": "M110",
+    "E_Location_Name": "Room 101",
+    "A_Location_Name": "Qa'a 101",
+    "E_Lecturer_Name": "Dr. Tutor",
+    "A_Lecturer_Name": "Dr. Tutor AR"
+  },
+  {
+    "IsValid": true,
+    "date": "2026-10-06",
+    "Event_Type": "1",
+    "Start_Time": "06:30 PM",
+    "End_Time": "08:00 PM",
+    "Course_Part_Code": "TM112",
+    "E_Location_Name": "Online (Teams)",
+    "A_Location_Name": "",
+    "E_Lecturer_Name": "",
+    "A_Lecturer_Name": "",
+    "Event_Link": "https://teams.example/meeting"
+  },
+  {
+    "IsValid": true,
+    "date": "2026-12-20",
+    "Event_Type": "2",
+    "Start_Time": "09:00",
+    "End_Time": "11:00",
+    "Course_Part_Code": "M110",
+    "E_Location_Name": "Hall A",
+    "A_Location_Name": "Hall A AR",
+    "Exam_Name": "Final"
+  },
+  {
+    "IsValid": true,
+    "date": "2026-11-01",
+    "Event_Type": "3",
+    "Start_Time": "12:00",
+    "End_Time": "13:00",
+    "E_Lecturer_Name": "Orientation day",
+    "Event_Link": "https://example/event"
+  },
+  {
+    "IsValid": true,
+    "date": "not-a-date",
+    "Event_Type": "1",
+    "Start_Time": "10:00",
+    "Course_Part_Code": "M110"
+  },
+  {
+    "IsValid": true,
+    "date": "2026-10-04",
+    "Event_Type": "1",
+    "Start_Time": "later",
+    "Course_Part_Code": "M110"
+  },
+  "not an object"
+]

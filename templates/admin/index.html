@@ -1,0 +1,49 @@
+{% extends 'admin/base.html' %}
+
+{% load i18n unfold %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">
+            {{ site_header|default:_('Django administration') }}
+        </a>
+    </h1>
+{% endblock %}
+
+{% block content %}
+    <div class="flex flex-col gap-8 mb-8">
+        <div class="grid gap-4 md:grid-cols-3">
+            {% for kpi in zakerni_kpis %}
+                {% component "unfold/components/card.html" with icon=kpi.icon %}
+                    {% component "unfold/components/text.html" %}{{ kpi.title }}{% endcomponent %}
+                    {% component "unfold/components/title.html" %}{{ kpi.value }}{% endcomponent %}
+                {% endcomponent %}
+            {% endfor %}
+        </div>
+
+        {% trans "Reminders sent per day (14 days)" as chart_title %}
+        {% component "unfold/components/card.html" with title=chart_title %}
+            {% component "unfold/components/chart/bar.html" with data=zakerni_chart height=280 %}{% endcomponent %}
+        {% endcomponent %}
+
+        {% trans "Last 10 failed syncs" as syncs_title %}
+        {% component "unfold/components/card.html" with title=syncs_title %}
+            {% if zakerni_failed_syncs.rows %}
+                {% component "unfold/components/table.html" with table=zakerni_failed_syncs card_included=1 striped=1 %}{% endcomponent %}
+            {% else %}
+                {% component "unfold/components/text.html" %}{% trans "No failed syncs." %}{% endcomponent %}
+            {% endif %}
+        {% endcomponent %}
+    </div>
+
+    <div class="flex flex-col lg:flex-row lg:gap-8">
+        <div class="flex-grow">
+            {% include "unfold/helpers/app_list_default.html" %}
+        </div>
+        {% include "unfold/helpers/history.html" %}
+    </div>
+{% endblock %}

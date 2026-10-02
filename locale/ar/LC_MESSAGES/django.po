@@ -1,0 +1,1017 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: zakerni\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+
+#: apps\accounts\admin.py
+msgid "Important dates"
+msgstr "تواريخ مهمة"
+
+#: apps\accounts\admin.py
+msgid "LMS status"
+msgstr "حالة الـ LMS"
+
+#: apps\accounts\admin.py
+msgid "Permissions"
+msgstr "الصلاحيات"
+
+#: apps\accounts\admin.py
+msgid "Profile"
+msgstr "الملف الشخصي"
+
+#: apps\accounts\admin.py
+msgid "active devices"
+msgstr "الأجهزة النشطة"
+
+#: apps\accounts\api\serializers.py
+msgid "Unknown timezone."
+msgstr "منطقة زمنية غير معروفة."
+
+#: apps\accounts\apps.py
+msgid "Accounts"
+msgstr "الحسابات"
+
+#: apps\accounts\models.py
+msgid "reminder defaults confirmed at"
+msgstr "تاريخ تأكيد التذكيرات الافتراضية"
+
+#: apps\broadcasts\admin.py
+msgid "Arabic"
+msgstr "العربية"
+
+#: apps\broadcasts\admin.py
+msgid "Broadcast is being sent."
+msgstr "جارٍ إرسال الرسالة الجماعية."
+
+#: apps\broadcasts\admin.py
+msgid "Channels"
+msgstr "القنوات"
+
+#: apps\broadcasts\admin.py
+msgid "Delivery"
+msgstr "الإرسال"
+
+#: apps\broadcasts\admin.py
+msgid "English"
+msgstr "الإنجليزية"
+
+#: apps\broadcasts\admin.py
+msgid "Send now"
+msgstr "إرسال الآن"
+
+#: apps\broadcasts\admin.py
+msgid "estimated recipients"
+msgstr "عدد المستلمين المتوقع"
+
+#: apps\broadcasts\apps.py
+msgid "Broadcasts"
+msgstr "الرسائل الجماعية"
+
+#: apps\broadcasts\models.py
+msgid "Draft"
+msgstr "مسودة"
+
+#: apps\broadcasts\models.py
+msgid "Sending"
+msgstr "جارٍ الإرسال"
+
+#: apps\broadcasts\models.py
+msgid "body (Arabic)"
+msgstr "النص (عربي)"
+
+#: apps\broadcasts\models.py
+msgid "body (English)"
+msgstr "النص (إنجليزي)"
+
+#: apps\broadcasts\models.py
+msgid "broadcast"
+msgstr "رسالة جماعية"
+
+#: apps\broadcasts\models.py
+msgid "broadcasts"
+msgstr "رسائل جماعية"
+
+#: apps\broadcasts\models.py
+msgid "recipients"
+msgstr "المستلمون"
+
+#: apps\broadcasts\models.py
+msgid "send Telegram"
+msgstr "إرسال على تليجرام"
+
+#: apps\broadcasts\models.py
+msgid "send push"
+msgstr "إرسال إشعار"
+
+#: apps\broadcasts\models.py
+msgid "title (Arabic)"
+msgstr "العنوان (عربي)"
+
+#: apps\broadcasts\models.py
+msgid "title (English)"
+msgstr "العنوان (إنجليزي)"
+
+#: apps\broadcasts\services\send.py
+msgid "This broadcast was already sent."
+msgstr "تم إرسال هذه الرسالة الجماعية بالفعل."
+
+#: apps\core\apps.py
+msgid "Core"
+msgstr "الأساسيات"
+
+#: apps\core\dashboard.py
+msgid "Active devices"
+msgstr "الأجهزة النشطة"
+
+#: apps\core\dashboard.py
+msgid "Error"
+msgstr "الخطأ"
+
+#: apps\core\dashboard.py
+msgid "Open reports"
+msgstr "البلاغات المفتوحة"
+
+#: apps\core\dashboard.py
+msgid "Reminders failed (24 h)"
+msgstr "تذكيرات فشلت (24 ساعة)"
+
+#: apps\core\dashboard.py
+msgid "Reminders sent"
+msgstr "التذكيرات المرسلة"
+
+#: apps\core\dashboard.py
+msgid "Reminders sent (24 h)"
+msgstr "تذكيرات أُرسلت (24 ساعة)"
+
+#: apps\core\dashboard.py
+msgid "Started at"
+msgstr "بدأت في"
+
+#: apps\core\dashboard.py
+msgid "Telegram-linked users"
+msgstr "مستخدمون ربطوا تليجرام"
+
+#: apps\core\dashboard.py
+msgid "User"
+msgstr "المستخدم"
+
+#: apps\core\dashboard.py
+msgid "Users"
+msgstr "المستخدمون"
+
+#: apps\core\exceptions.py
+msgid "Incorrect username or password."
+msgstr "اسم المستخدم أو كلمة المرور غير صحيحة"
+
+#: apps\core\exceptions.py
+msgid "Invalid input."
+msgstr "البيانات المدخلة غير صحيحة."
+
+#: apps\core\exceptions.py
+msgid "Link your Telegram account first."
+msgstr "اربط حساب تليجرام أولًا."
+
+#: apps\core\exceptions.py
+msgid "Not found."
+msgstr "غير موجود."
+
+#: apps\core\exceptions.py
+msgid "Something went wrong."
+msgstr "حدث خطأ ما."
+
+#: apps\core\exceptions.py
+msgid "The university system is currently unavailable. Please try again later."
+msgstr "نظام الجامعة غير متاح حاليًا. حاول مرة أخرى لاحقًا."
+
+#: apps\core\exceptions.py
+msgid "This Telegram link has expired. Please request a new one."
+msgstr "انتهت صلاحية رابط تليجرام. اطلب رابطًا جديدًا."
+
+#: apps\core\exceptions.py
+msgid "This item comes from the university system and cannot be edited."
+msgstr "هذا العنصر من نظام الجامعة ولا يمكن تعديله."
+
+#: apps\core\exceptions.py
+msgid "Too many requests. Please try again later."
+msgstr "طلبات كثيرة جدًا. حاول مرة أخرى لاحقًا."
+
+#: apps\core\exceptions.py
+msgid "Your university session has expired. Please log in again."
+msgstr "انتهت جلستك في نظام الجامعة. سجّل الدخول مرة أخرى."
+
+#: apps\moodle\models.py
+msgid "Active"
+msgstr "نشط"
+
+#: apps\moodle\models.py
+msgid "Disabled"
+msgstr "معطل"
+
+#: apps\moodle\models.py
+msgid "Expired"
+msgstr "منتهي"
+
+#: apps\moodle\models.py
+msgid "Moodle account"
+msgstr "حساب Moodle"
+
+#: apps\moodle\models.py
+msgid "Moodle accounts"
+msgstr "حسابات Moodle"
+
+#: apps\moodle\models.py
+msgid "Success"
+msgstr "نجاح"
+
+#: apps\moodle\models.py
+msgid "sync log"
+msgstr "سجل مزامنة"
+
+#: apps\moodle\models.py
+msgid "sync logs"
+msgstr "سجلات المزامنة"
+
+#: apps\moodle\services\sync.py
+msgid "Sign in again"
+msgstr "سجّل الدخول مرة أخرى"
+
+#: apps\moodle\services\sync.py
+msgid "Sign in again to keep your reminders working."
+msgstr "سجّل الدخول مرة أخرى عشان التذكيرات تفضل شغالة."
+
+#: apps\notifications\apps.py
+msgid "Notifications"
+msgstr "الإشعارات"
+
+#: apps\notifications\models.py
+msgid "Android"
+msgstr "أندرويد"
+
+#: apps\notifications\models.py
+msgid "Broadcast"
+msgstr "رسالة جماعية"
+
+#: apps\notifications\models.py
+msgid "FCM token"
+msgstr "رمز FCM"
+
+#: apps\notifications\models.py
+msgid "OS version"
+msgstr "إصدار النظام"
+
+#: apps\notifications\models.py
+msgid "Push"
+msgstr "إشعار"
+
+#: apps\notifications\models.py
+msgid "Reminder"
+msgstr "تذكير"
+
+#: apps\notifications\models.py
+msgid "Report reply"
+msgstr "رد على بلاغ"
+
+#: apps\notifications\models.py
+msgid "System"
+msgstr "النظام"
+
+#: apps\notifications\models.py
+msgid "Telegram"
+msgstr "تليجرام"
+
+#: apps\notifications\models.py
+msgid "Telegram link"
+msgstr "ربط تليجرام"
+
+#: apps\notifications\models.py
+msgid "Telegram link token"
+msgstr "رمز ربط تليجرام"
+
+#: apps\notifications\models.py
+msgid "Telegram link tokens"
+msgstr "رموز ربط تليجرام"
+
+#: apps\notifications\models.py
+msgid "Telegram links"
+msgstr "روابط تليجرام"
+
+#: apps\notifications\models.py
+msgid "chat id"
+msgstr "معرّف المحادثة"
+
+#: apps\notifications\models.py
+msgid "device"
+msgstr "جهاز"
+
+#: apps\notifications\models.py
+msgid "devices"
+msgstr "أجهزة"
+
+#: apps\notifications\models.py
+msgid "expires at"
+msgstr "ينتهي في"
+
+#: apps\notifications\models.py
+msgid "iOS"
+msgstr "iOS"
+
+#: apps\notifications\models.py
+msgid "kind"
+msgstr "النوع"
+
+#: apps\notifications\models.py
+msgid "last seen at"
+msgstr "آخر ظهور"
+
+#: apps\notifications\models.py
+msgid "linked at"
+msgstr "تاريخ الربط"
+
+#: apps\notifications\models.py
+msgid "model"
+msgstr "الطراز"
+
+#: apps\notifications\models.py
+msgid "notification"
+msgstr "إشعار"
+
+#: apps\notifications\models.py
+msgid "notifications"
+msgstr "إشعارات"
+
+#: apps\notifications\models.py
+msgid "platform"
+msgstr "المنصة"
+
+#: apps\notifications\models.py
+msgid "read at"
+msgstr "تاريخ القراءة"
+
+#: apps\notifications\models.py
+msgid "token"
+msgstr "الرمز"
+
+#: apps\notifications\models.py
+msgid "used at"
+msgstr "تاريخ الاستخدام"
+
+#: apps\notifications\models.py
+msgid "username"
+msgstr "اسم المستخدم"
+
+#: apps\notifications\services\telegram_linking.py
+msgid "This link has expired or was already used. Open the Zakerni app and tap Connect Telegram to get a new one."
+msgstr "الرابط ده انتهت صلاحيته أو اتستخدم قبل كده. افتح تطبيق ذكّرني واضغط ربط تليجرام عشان تاخد رابط جديد."
+
+#: apps\notifications\services\telegram_linking.py
+msgid "Welcome to Zakerni. To get your reminders here, open the Zakerni app, go to Settings, then Telegram, and tap Connect Telegram."
+msgstr "أهلًا بيك في ذكّرني. عشان توصلك التذكيرات هنا، افتح تطبيق ذكّرني، وادخل على الإعدادات ثم تليجرام، واضغط ربط تليجرام."
+
+#: apps\notifications\services\telegram_linking.py
+msgid "Your Telegram account is now linked to Zakerni. Your reminders will arrive here."
+msgstr "تم ربط حساب تليجرام بذكّرني. هتوصلك التذكيرات هنا."
+
+#: apps\reminders\apps.py
+msgid "Reminders"
+msgstr "التذكيرات"
+
+#: apps\reminders\models.py
+msgid "Cancelled"
+msgstr "ملغي"
+
+#: apps\reminders\models.py
+msgid "Failed"
+msgstr "فشل"
+
+#: apps\reminders\models.py
+msgid "Pending"
+msgstr "في الانتظار"
+
+#: apps\reminders\models.py
+msgid "Sent"
+msgstr "تم الإرسال"
+
+#: apps\reminders\models.py
+msgid "Skipped"
+msgstr "تم التخطي"
+
+#: apps\reminders\models.py
+msgid "Telegram enabled"
+msgstr "تليجرام مفعّل"
+
+#: apps\reminders\models.py
+msgid "attempts"
+msgstr "المحاولات"
+
+#: apps\reminders\models.py
+msgid "channel"
+msgstr "القناة"
+
+#: apps\reminders\models.py
+msgid "error"
+msgstr "الخطأ"
+
+#: apps\reminders\models.py
+msgid "item reminder override"
+msgstr "تذكير مخصص لعنصر"
+
+#: apps\reminders\models.py
+msgid "item reminder overrides"
+msgstr "تذكيرات مخصصة للعناصر"
+
+#: apps\reminders\models.py
+msgid "item type"
+msgstr "نوع العنصر"
+
+#: apps\reminders\models.py
+msgid "offset (minutes)"
+msgstr "قبل الموعد (دقائق)"
+
+#: apps\reminders\models.py
+msgid "offsets (minutes)"
+msgstr "أوقات التذكير (دقائق)"
+
+#: apps\reminders\models.py
+msgid "push enabled"
+msgstr "الإشعارات مفعّلة"
+
+#: apps\reminders\models.py
+msgid "reminder rule"
+msgstr "قاعدة تذكير"
+
+#: apps\reminders\models.py
+msgid "reminder rules"
+msgstr "قواعد التذكير"
+
+#: apps\reminders\models.py
+msgid "scheduled reminder"
+msgstr "تذكير مجدول"
+
+#: apps\reminders\models.py
+msgid "scheduled reminders"
+msgstr "تذكيرات مجدولة"
+
+#: apps\reminders\models.py
+msgid "send at"
+msgstr "وقت الإرسال"
+
+#: apps\reminders\models.py
+msgid "sent at"
+msgstr "أُرسل في"
+
+#: apps\reminders\services\messages.py
+msgctxt "quiz reminder"
+msgid "%(subject)s closes %(when)s"
+msgstr "كويز %(subject)s بيقفل %(when)s"
+
+#: apps\reminders\services\messages.py
+msgctxt "tma reminder"
+msgid "%(subject)s is due %(when)s"
+msgstr "TMA %(subject)s آخر ميعاد تسليمه %(when)s"
+
+#: apps\reminders\services\messages.py
+msgctxt "exam reminder"
+msgid "%(subject)s starts %(when)s"
+msgstr "امتحان %(subject)s بيبدأ %(when)s"
+
+#: apps\reminders\services\messages.py
+msgctxt "lecture reminder"
+msgid "%(subject)s starts %(when)s"
+msgstr "محاضرة %(subject)s بتبدأ %(when)s"
+
+#: apps\reminders\services\messages.py
+msgctxt "time of day"
+msgid "AM"
+msgstr "ص"
+
+#: apps\reminders\services\messages.py
+msgid "Exam reminder"
+msgstr "تذكير بامتحان"
+
+#: apps\reminders\services\messages.py
+msgid "Lecture reminder"
+msgstr "تذكير بمحاضرة"
+
+#: apps\reminders\services\messages.py
+msgctxt "time of day"
+msgid "PM"
+msgstr "م"
+
+#: apps\reminders\services\messages.py
+msgid "Quiz reminder"
+msgstr "تذكير بكويز"
+
+#: apps\reminders\services\messages.py
+msgid "TMA reminder"
+msgstr "تذكير بـ TMA"
+
+#: apps\reminders\services\messages.py
+msgid "on %(date)s at %(time)s"
+msgstr "يوم %(date)s الساعة %(time)s"
+
+#: apps\reminders\services\messages.py
+msgid "today at %(time)s"
+msgstr "النهارده الساعة %(time)s"
+
+#: apps\reminders\services\messages.py
+msgid "tomorrow at %(time)s"
+msgstr "بكرة الساعة %(time)s"
+
+#: apps\reminders\services\rules.py
+msgid "Choose between 1 and 5 reminder times."
+msgstr "اختر من 1 إلى 5 أوقات للتذكير."
+
+#: apps\reminders\services\rules.py
+msgid "Each reminder time must be between 5 minutes and 14 days before."
+msgstr "كل وقت تذكير لازم يكون بين 5 دقائق و14 يومًا قبل الموعد."
+
+#: apps\reminders\services\rules.py
+msgid "Reminder times must be unique."
+msgstr "أوقات التذكير لازم تكون مختلفة."
+
+#: apps\schedule\admin.py
+msgid "deleted"
+msgstr "محذوف"
+
+#: apps\schedule\api\serializers.py
+msgid "The range can be at most 62 days."
+msgstr "أقصى مدة مسموح بها 62 يومًا."
+
+#: apps\schedule\api\serializers.py
+msgid "`to` must be after `from`."
+msgstr "تاريخ النهاية لازم يكون بعد تاريخ البداية."
+
+#: apps\schedule\apps.py
+msgid "Schedule"
+msgstr "الجدول"
+
+#: apps\schedule\models.py
+msgid "Exam"
+msgstr "امتحان"
+
+#: apps\schedule\models.py
+msgid "Lecture"
+msgstr "محاضرة"
+
+#: apps\schedule\models.py
+msgid "Manual"
+msgstr "يدوي"
+
+#: apps\schedule\models.py
+msgid "Moodle"
+msgstr "Moodle"
+
+#: apps\schedule\models.py
+msgid "Moodle course id"
+msgstr "معرّف المقرر في Moodle"
+
+#: apps\schedule\models.py
+msgid "Quiz"
+msgstr "كويز"
+
+#: apps\schedule\models.py
+msgid "TMA"
+msgstr "TMA"
+
+#: apps\schedule\models.py
+msgid "active"
+msgstr "نشط"
+
+#: apps\schedule\models.py
+msgid "available from"
+msgstr "متاح من"
+
+#: apps\schedule\models.py
+msgid "code"
+msgstr "الكود"
+
+#: apps\schedule\models.py
+msgid "course"
+msgstr "المقرر"
+
+#: apps\schedule\models.py
+msgid "courses"
+msgstr "المقررات"
+
+#: apps\schedule\models.py
+msgid "deleted at"
+msgstr "تاريخ الحذف"
+
+#: apps\schedule\models.py
+msgid "duration (minutes)"
+msgstr "المدة (دقائق)"
+
+#: apps\schedule\models.py
+msgid "ends at"
+msgstr "ينتهي في"
+
+#: apps\schedule\models.py
+msgid "ends on"
+msgstr "ينتهي يوم"
+
+#: apps\schedule\models.py
+msgid "enrollment"
+msgstr "تسجيل"
+
+#: apps\schedule\models.py
+msgid "enrollments"
+msgstr "التسجيلات"
+
+#: apps\schedule\models.py
+msgid "external id"
+msgstr "المعرّف الخارجي"
+
+#: apps\schedule\models.py
+msgid "item"
+msgstr "عنصر"
+
+#: apps\schedule\models.py
+msgid "items"
+msgstr "العناصر"
+
+#: apps\schedule\models.py
+msgid "lecture schedule"
+msgstr "جدول محاضرة"
+
+#: apps\schedule\models.py
+msgid "lecture schedules"
+msgstr "جداول المحاضرات"
+
+#: apps\schedule\models.py
+msgid "location"
+msgstr "المكان"
+
+#: apps\schedule\models.py
+msgid "muted"
+msgstr "مكتوم"
+
+#: apps\schedule\models.py
+msgid "name"
+msgstr "الاسم"
+
+#: apps\schedule\models.py
+msgid "scheduled at"
+msgstr "الموعد"
+
+#: apps\schedule\models.py
+msgid "source"
+msgstr "المصدر"
+
+#: apps\schedule\models.py
+msgid "start time"
+msgstr "وقت البداية"
+
+#: apps\schedule\models.py
+msgid "starts on"
+msgstr "يبدأ يوم"
+
+#: apps\schedule\models.py
+msgid "timezone"
+msgstr "المنطقة الزمنية"
+
+#: apps\schedule\models.py
+msgid "title"
+msgstr "العنوان"
+
+#: apps\schedule\models.py
+msgid "type"
+msgstr "النوع"
+
+#: apps\schedule\models.py
+msgid "url"
+msgstr "الرابط"
+
+#: apps\schedule\models.py
+msgid "weekdays"
+msgstr "أيام الأسبوع"
+
+#: apps\schedule\services\items.py
+msgid "Lecture occurrences are changed from the lecture schedule."
+msgstr "مواعيد المحاضرة بتتعدل من جدول المحاضرة."
+
+#: apps\schedule\services\items.py
+msgid "The end time must be after the start time."
+msgstr "وقت النهاية لازم يكون بعد وقت البداية."
+
+#: apps\schedule\services\lectures.py
+msgid "A lecture schedule can span at most one year."
+msgstr "جدول المحاضرة ممكن يمتد لسنة بحد أقصى."
+
+#: apps\schedule\services\lectures.py
+msgid "Choose at least one day of the week."
+msgstr "اختر يومًا واحدًا على الأقل من أيام الأسبوع."
+
+#: apps\schedule\services\lectures.py
+msgid "Duration must be between 1 and 600 minutes."
+msgstr "المدة لازم تكون بين 1 و600 دقيقة."
+
+#: apps\schedule\services\lectures.py
+msgid "The end date must be on or after the start date."
+msgstr "تاريخ النهاية لازم يكون في يوم البداية أو بعده."
+
+#: apps\schedule\services\lectures.py
+msgid "Unknown course."
+msgstr "مقرر غير معروف."
+
+#: apps\support\admin.py
+msgid "Mark as closed"
+msgstr "تحديد كمغلق"
+
+#: apps\support\admin.py
+msgid "Mark as in progress"
+msgstr "تحديد كقيد المعالجة"
+
+#: apps\support\admin.py
+msgid "Mark as resolved"
+msgstr "تحديد كتم الحل"
+
+#: apps\support\admin.py
+msgid "Reply sent to the student."
+msgstr "تم إرسال الرد للطالب."
+
+#: apps\support\admin.py
+msgid "Status updated."
+msgstr "تم تحديث الحالة."
+
+#: apps\support\admin.py
+msgid "conversation"
+msgstr "المحادثة"
+
+#: apps\support\admin.py
+msgid "image"
+msgstr "الصورة"
+
+#: apps\support\admin.py
+msgid "new reply"
+msgstr "رد جديد"
+
+#: apps\support\admin.py
+msgid "reply"
+msgstr "رد"
+
+#: apps\support\admin.py
+msgid "reply to the student"
+msgstr "الرد على الطالب"
+
+#: apps\support\api\serializers.py
+msgid "Must be a JSON object."
+msgstr "لازم تكون كائن JSON."
+
+#: apps\support\apps.py
+msgid "Support"
+msgstr "الدعم"
+
+#: apps\support\models.py
+msgid "Closed"
+msgstr "مغلق"
+
+#: apps\support\models.py
+msgid "In progress"
+msgstr "قيد المعالجة"
+
+#: apps\support\models.py
+msgid "Login problem"
+msgstr "مشكلة في تسجيل الدخول"
+
+#: apps\support\models.py
+msgid "New"
+msgstr "جديد"
+
+#: apps\support\models.py
+msgid "Other"
+msgstr "أخرى"
+
+#: apps\support\models.py
+msgid "Reminder not received"
+msgstr "التذكير موصلش"
+
+#: apps\support\models.py
+msgid "Resolved"
+msgstr "تم الحل"
+
+#: apps\support\models.py
+msgid "Telegram problem"
+msgstr "مشكلة في تليجرام"
+
+#: apps\support\models.py
+msgid "Wrong date or time"
+msgstr "تاريخ أو وقت غلط"
+
+#: apps\support\models.py
+msgid "app version"
+msgstr "إصدار التطبيق"
+
+#: apps\support\models.py
+msgid "body"
+msgstr "النص"
+
+#: apps\support\models.py
+msgid "category"
+msgstr "التصنيف"
+
+#: apps\support\models.py
+msgid "description"
+msgstr "الوصف"
+
+#: apps\support\models.py
+msgid "device info"
+msgstr "بيانات الجهاز"
+
+#: apps\support\models.py
+msgid "file"
+msgstr "الملف"
+
+#: apps\support\models.py
+msgid "report"
+msgstr "بلاغ"
+
+#: apps\support\models.py
+msgid "report attachment"
+msgstr "مرفق بلاغ"
+
+#: apps\support\models.py
+msgid "report attachments"
+msgstr "مرفقات البلاغات"
+
+#: apps\support\models.py
+msgid "report replies"
+msgstr "ردود البلاغات"
+
+#: apps\support\models.py
+msgid "report reply"
+msgstr "رد على بلاغ"
+
+#: apps\support\models.py
+msgid "reports"
+msgstr "البلاغات"
+
+#: apps\support\models.py
+msgid "staff reply"
+msgstr "رد من الإدارة"
+
+#: apps\support\models.py
+msgid "status"
+msgstr "الحالة"
+
+#: apps\support\services\reports.py
+msgid "Each image must be 5 MB or smaller."
+msgstr "حجم كل صورة لازم يكون 5 ميجابايت أو أقل."
+
+#: apps\support\services\reports.py
+msgid "New reply on your report"
+msgstr "رد جديد على بلاغك"
+
+#: apps\support\services\reports.py
+msgid "Only image files can be attached."
+msgstr "مسموح بإرفاق صور فقط."
+
+#: apps\support\services\reports.py
+msgid "Unknown category."
+msgstr "تصنيف غير معروف."
+
+#: apps\support\services\reports.py
+msgid "Unknown status."
+msgstr "حالة غير معروفة."
+
+#: apps\support\services\reports.py
+msgid "You can attach up to 3 images."
+msgstr "ممكن ترفق 3 صور بحد أقصى."
+
+#: config\settings\base.py
+msgid "Zakerni"
+msgstr "ذكّرني"
+
+#: config\settings\base.py
+msgid "Zakerni Admin"
+msgstr "لوحة تحكم ذكّرني"
+
+#: templates\admin\index.html
+msgid "Last 10 failed syncs"
+msgstr "آخر 10 مزامنات فاشلة"
+
+#: templates\admin\index.html
+msgid "No failed syncs."
+msgstr "لا توجد مزامنات فاشلة."
+
+#: templates\admin\index.html
+msgid "Reminders sent per day (14 days)"
+msgstr "التذكيرات المرسلة يوميًا (14 يومًا)"
+
+#: apps/support/consumers.py
+msgid "Invalid JSON."
+msgstr "صيغة JSON غير صالحة."
+
+#: apps/support/consumers.py
+msgid "Unknown message type."
+msgstr "نوع رسالة غير معروف."
+
+#: apps/support/services/reports.py
+msgid "This field may not be blank."
+msgstr "لا يمكن ترك هذا الحقل فارغًا."
+
+#: apps/support/services/reports.py
+msgid "Ensure this field has no more than 5000 characters."
+msgstr "يجب ألا يزيد هذا الحقل عن 5000 حرف."
+
+#: templates/admin/support/report_live_thread.html
+msgid "Live conversation"
+msgstr "المحادثة المباشرة"
+
+#: apps/support/admin.py
+msgid "Staff"
+msgstr "فريق الدعم"
+
+#: apps/support/admin.py
+msgid "Student"
+msgstr "الطالب"
+
+#: templates/admin/support/report_live_thread.html
+msgid "Write a reply to the student"
+msgstr "اكتب ردًا للطالب"
+
+#: templates/admin/support/report_live_thread.html
+msgid "Send"
+msgstr "إرسال"
+
+#: apps/support/admin.py
+msgid "Live"
+msgstr "متصل"
+
+#: apps/support/admin.py
+msgid "Offline, reconnecting"
+msgstr "غير متصل، جارٍ إعادة الاتصال"
+
+#: apps/schedule/services/items.py
+msgid "The opening time must be before the close time."
+msgstr "وقت الفتح لازم يكون قبل وقت القفل."
+
+#: apps/schedule/services/items.py
+msgid "This type cannot be added manually."
+msgstr "النوع ده مينفعش يتضاف يدوي."
+
+#: apps/reminders/services/messages.py
+msgid "Online (Teams)"
+msgstr "أونلاين (Teams)"
+
+#: apps/reminders/services/messages.py
+#, python-format
+msgid "Location: %(location)s"
+msgstr "المكان: %(location)s"
+
+#: apps/reminders/services/messages.py
+#, python-format
+msgid "Tutor: %(tutor)s"
+msgstr "الدكتور: %(tutor)s"
+
+#: apps/reminders/services/messages.py
+#, python-format
+msgid "Join: %(url)s"
+msgstr "رابط الدخول: %(url)s"
+
+#: apps/core/exceptions.py
+msgid "Incorrect SIS username or password."
+msgstr "اسم المستخدم أو كلمة السر بتاعة نظام شؤون الطلاب غلط."
+
+#: apps/core/exceptions.py
+msgid "The student information system is currently unavailable. Please try again later."
+msgstr "نظام شؤون الطلاب مش متاح دلوقتي. حاول تاني بعد شوية."
+
+#: apps/sis/services/sync.py
+msgid "Reconnect the SIS"
+msgstr "اربط نظام شؤون الطلاب تاني"
+
+#: apps/sis/services/sync.py
+msgid "Your SIS password no longer works. Reconnect it in Settings to keep your exams and lectures up to date."
+msgstr "كلمة سر نظام شؤون الطلاب مبقتش شغالة. اربطه تاني من الإعدادات عشان امتحاناتك ومحاضراتك تفضل متحدثة."
+
+#: apps/sis/apps.py
+msgid "Student information system"
+msgstr "نظام شؤون الطلاب"
+
+#: apps/sis/models.py
+msgid "SIS account"
+msgstr "حساب نظام شؤون الطلاب"
+
+#: apps/sis/models.py
+msgid "SIS accounts"
+msgstr "حسابات نظام شؤون الطلاب"
+
+#: apps/sis/models.py
+msgid "SIS sync log"
+msgstr "سجل مزامنة نظام شؤون الطلاب"
+
+#: apps/sis/models.py
+msgid "SIS sync logs"
+msgstr "سجلات مزامنة نظام شؤون الطلاب"
+
+#: apps/sis/models.py
+msgid "Invalid credentials"
+msgstr "بيانات دخول غلط"
+
+#: apps/schedule/models.py
+msgid "SIS"
+msgstr "شؤون الطلاب"

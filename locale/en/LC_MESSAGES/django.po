@@ -1,0 +1,1017 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: zakerni\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps\accounts\admin.py
+msgid "Important dates"
+msgstr "Important dates"
+
+#: apps\accounts\admin.py
+msgid "LMS status"
+msgstr "LMS status"
+
+#: apps\accounts\admin.py
+msgid "Permissions"
+msgstr "Permissions"
+
+#: apps\accounts\admin.py
+msgid "Profile"
+msgstr "Profile"
+
+#: apps\accounts\admin.py
+msgid "active devices"
+msgstr "active devices"
+
+#: apps\accounts\api\serializers.py
+msgid "Unknown timezone."
+msgstr "Unknown timezone."
+
+#: apps\accounts\apps.py
+msgid "Accounts"
+msgstr "Accounts"
+
+#: apps\accounts\models.py
+msgid "reminder defaults confirmed at"
+msgstr "reminder defaults confirmed at"
+
+#: apps\broadcasts\admin.py
+msgid "Arabic"
+msgstr "Arabic"
+
+#: apps\broadcasts\admin.py
+msgid "Broadcast is being sent."
+msgstr "Broadcast is being sent."
+
+#: apps\broadcasts\admin.py
+msgid "Channels"
+msgstr "Channels"
+
+#: apps\broadcasts\admin.py
+msgid "Delivery"
+msgstr "Delivery"
+
+#: apps\broadcasts\admin.py
+msgid "English"
+msgstr "English"
+
+#: apps\broadcasts\admin.py
+msgid "Send now"
+msgstr "Send now"
+
+#: apps\broadcasts\admin.py
+msgid "estimated recipients"
+msgstr "estimated recipients"
+
+#: apps\broadcasts\apps.py
+msgid "Broadcasts"
+msgstr "Broadcasts"
+
+#: apps\broadcasts\models.py
+msgid "Draft"
+msgstr "Draft"
+
+#: apps\broadcasts\models.py
+msgid "Sending"
+msgstr "Sending"
+
+#: apps\broadcasts\models.py
+msgid "body (Arabic)"
+msgstr "body (Arabic)"
+
+#: apps\broadcasts\models.py
+msgid "body (English)"
+msgstr "body (English)"
+
+#: apps\broadcasts\models.py
+msgid "broadcast"
+msgstr "broadcast"
+
+#: apps\broadcasts\models.py
+msgid "broadcasts"
+msgstr "broadcasts"
+
+#: apps\broadcasts\models.py
+msgid "recipients"
+msgstr "recipients"
+
+#: apps\broadcasts\models.py
+msgid "send Telegram"
+msgstr "send Telegram"
+
+#: apps\broadcasts\models.py
+msgid "send push"
+msgstr "send push"
+
+#: apps\broadcasts\models.py
+msgid "title (Arabic)"
+msgstr "title (Arabic)"
+
+#: apps\broadcasts\models.py
+msgid "title (English)"
+msgstr "title (English)"
+
+#: apps\broadcasts\services\send.py
+msgid "This broadcast was already sent."
+msgstr "This broadcast was already sent."
+
+#: apps\core\apps.py
+msgid "Core"
+msgstr "Core"
+
+#: apps\core\dashboard.py
+msgid "Active devices"
+msgstr "Active devices"
+
+#: apps\core\dashboard.py
+msgid "Error"
+msgstr "Error"
+
+#: apps\core\dashboard.py
+msgid "Open reports"
+msgstr "Open reports"
+
+#: apps\core\dashboard.py
+msgid "Reminders failed (24 h)"
+msgstr "Reminders failed (24 h)"
+
+#: apps\core\dashboard.py
+msgid "Reminders sent"
+msgstr "Reminders sent"
+
+#: apps\core\dashboard.py
+msgid "Reminders sent (24 h)"
+msgstr "Reminders sent (24 h)"
+
+#: apps\core\dashboard.py
+msgid "Started at"
+msgstr "Started at"
+
+#: apps\core\dashboard.py
+msgid "Telegram-linked users"
+msgstr "Telegram-linked users"
+
+#: apps\core\dashboard.py
+msgid "User"
+msgstr "User"
+
+#: apps\core\dashboard.py
+msgid "Users"
+msgstr "Users"
+
+#: apps\core\exceptions.py
+msgid "Incorrect username or password."
+msgstr "Incorrect username or password."
+
+#: apps\core\exceptions.py
+msgid "Invalid input."
+msgstr "Invalid input."
+
+#: apps\core\exceptions.py
+msgid "Link your Telegram account first."
+msgstr "Link your Telegram account first."
+
+#: apps\core\exceptions.py
+msgid "Not found."
+msgstr "Not found."
+
+#: apps\core\exceptions.py
+msgid "Something went wrong."
+msgstr "Something went wrong."
+
+#: apps\core\exceptions.py
+msgid "The university system is currently unavailable. Please try again later."
+msgstr "The university system is currently unavailable. Please try again later."
+
+#: apps\core\exceptions.py
+msgid "This Telegram link has expired. Please request a new one."
+msgstr "This Telegram link has expired. Please request a new one."
+
+#: apps\core\exceptions.py
+msgid "This item comes from the university system and cannot be edited."
+msgstr "This item comes from the university system and cannot be edited."
+
+#: apps\core\exceptions.py
+msgid "Too many requests. Please try again later."
+msgstr "Too many requests. Please try again later."
+
+#: apps\core\exceptions.py
+msgid "Your university session has expired. Please log in again."
+msgstr "Your university session has expired. Please log in again."
+
+#: apps\moodle\models.py
+msgid "Active"
+msgstr "Active"
+
+#: apps\moodle\models.py
+msgid "Disabled"
+msgstr "Disabled"
+
+#: apps\moodle\models.py
+msgid "Expired"
+msgstr "Expired"
+
+#: apps\moodle\models.py
+msgid "Moodle account"
+msgstr "Moodle account"
+
+#: apps\moodle\models.py
+msgid "Moodle accounts"
+msgstr "Moodle accounts"
+
+#: apps\moodle\models.py
+msgid "Success"
+msgstr "Success"
+
+#: apps\moodle\models.py
+msgid "sync log"
+msgstr "sync log"
+
+#: apps\moodle\models.py
+msgid "sync logs"
+msgstr "sync logs"
+
+#: apps\moodle\services\sync.py
+msgid "Sign in again"
+msgstr "Sign in again"
+
+#: apps\moodle\services\sync.py
+msgid "Sign in again to keep your reminders working."
+msgstr "Sign in again to keep your reminders working."
+
+#: apps\notifications\apps.py
+msgid "Notifications"
+msgstr "Notifications"
+
+#: apps\notifications\models.py
+msgid "Android"
+msgstr "Android"
+
+#: apps\notifications\models.py
+msgid "Broadcast"
+msgstr "Broadcast"
+
+#: apps\notifications\models.py
+msgid "FCM token"
+msgstr "FCM token"
+
+#: apps\notifications\models.py
+msgid "OS version"
+msgstr "OS version"
+
+#: apps\notifications\models.py
+msgid "Push"
+msgstr "Push"
+
+#: apps\notifications\models.py
+msgid "Reminder"
+msgstr "Reminder"
+
+#: apps\notifications\models.py
+msgid "Report reply"
+msgstr "Report reply"
+
+#: apps\notifications\models.py
+msgid "System"
+msgstr "System"
+
+#: apps\notifications\models.py
+msgid "Telegram"
+msgstr "Telegram"
+
+#: apps\notifications\models.py
+msgid "Telegram link"
+msgstr "Telegram link"
+
+#: apps\notifications\models.py
+msgid "Telegram link token"
+msgstr "Telegram link token"
+
+#: apps\notifications\models.py
+msgid "Telegram link tokens"
+msgstr "Telegram link tokens"
+
+#: apps\notifications\models.py
+msgid "Telegram links"
+msgstr "Telegram links"
+
+#: apps\notifications\models.py
+msgid "chat id"
+msgstr "chat id"
+
+#: apps\notifications\models.py
+msgid "device"
+msgstr "device"
+
+#: apps\notifications\models.py
+msgid "devices"
+msgstr "devices"
+
+#: apps\notifications\models.py
+msgid "expires at"
+msgstr "expires at"
+
+#: apps\notifications\models.py
+msgid "iOS"
+msgstr "iOS"
+
+#: apps\notifications\models.py
+msgid "kind"
+msgstr "kind"
+
+#: apps\notifications\models.py
+msgid "last seen at"
+msgstr "last seen at"
+
+#: apps\notifications\models.py
+msgid "linked at"
+msgstr "linked at"
+
+#: apps\notifications\models.py
+msgid "model"
+msgstr "model"
+
+#: apps\notifications\models.py
+msgid "notification"
+msgstr "notification"
+
+#: apps\notifications\models.py
+msgid "notifications"
+msgstr "notifications"
+
+#: apps\notifications\models.py
+msgid "platform"
+msgstr "platform"
+
+#: apps\notifications\models.py
+msgid "read at"
+msgstr "read at"
+
+#: apps\notifications\models.py
+msgid "token"
+msgstr "token"
+
+#: apps\notifications\models.py
+msgid "used at"
+msgstr "used at"
+
+#: apps\notifications\models.py
+msgid "username"
+msgstr "username"
+
+#: apps\notifications\services\telegram_linking.py
+msgid "This link has expired or was already used. Open the Zakerni app and tap Connect Telegram to get a new one."
+msgstr "This link has expired or was already used. Open the Zakerni app and tap Connect Telegram to get a new one."
+
+#: apps\notifications\services\telegram_linking.py
+msgid "Welcome to Zakerni. To get your reminders here, open the Zakerni app, go to Settings, then Telegram, and tap Connect Telegram."
+msgstr "Welcome to Zakerni. To get your reminders here, open the Zakerni app, go to Settings, then Telegram, and tap Connect Telegram."
+
+#: apps\notifications\services\telegram_linking.py
+msgid "Your Telegram account is now linked to Zakerni. Your reminders will arrive here."
+msgstr "Your Telegram account is now linked to Zakerni. Your reminders will arrive here."
+
+#: apps\reminders\apps.py
+msgid "Reminders"
+msgstr "Reminders"
+
+#: apps\reminders\models.py
+msgid "Cancelled"
+msgstr "Cancelled"
+
+#: apps\reminders\models.py
+msgid "Failed"
+msgstr "Failed"
+
+#: apps\reminders\models.py
+msgid "Pending"
+msgstr "Pending"
+
+#: apps\reminders\models.py
+msgid "Sent"
+msgstr "Sent"
+
+#: apps\reminders\models.py
+msgid "Skipped"
+msgstr "Skipped"
+
+#: apps\reminders\models.py
+msgid "Telegram enabled"
+msgstr "Telegram enabled"
+
+#: apps\reminders\models.py
+msgid "attempts"
+msgstr "attempts"
+
+#: apps\reminders\models.py
+msgid "channel"
+msgstr "channel"
+
+#: apps\reminders\models.py
+msgid "error"
+msgstr "error"
+
+#: apps\reminders\models.py
+msgid "item reminder override"
+msgstr "item reminder override"
+
+#: apps\reminders\models.py
+msgid "item reminder overrides"
+msgstr "item reminder overrides"
+
+#: apps\reminders\models.py
+msgid "item type"
+msgstr "item type"
+
+#: apps\reminders\models.py
+msgid "offset (minutes)"
+msgstr "offset (minutes)"
+
+#: apps\reminders\models.py
+msgid "offsets (minutes)"
+msgstr "offsets (minutes)"
+
+#: apps\reminders\models.py
+msgid "push enabled"
+msgstr "push enabled"
+
+#: apps\reminders\models.py
+msgid "reminder rule"
+msgstr "reminder rule"
+
+#: apps\reminders\models.py
+msgid "reminder rules"
+msgstr "reminder rules"
+
+#: apps\reminders\models.py
+msgid "scheduled reminder"
+msgstr "scheduled reminder"
+
+#: apps\reminders\models.py
+msgid "scheduled reminders"
+msgstr "scheduled reminders"
+
+#: apps\reminders\models.py
+msgid "send at"
+msgstr "send at"
+
+#: apps\reminders\models.py
+msgid "sent at"
+msgstr "sent at"
+
+#: apps\reminders\services\messages.py
+msgctxt "quiz reminder"
+msgid "%(subject)s closes %(when)s"
+msgstr "%(subject)s closes %(when)s"
+
+#: apps\reminders\services\messages.py
+msgctxt "tma reminder"
+msgid "%(subject)s is due %(when)s"
+msgstr "%(subject)s is due %(when)s"
+
+#: apps\reminders\services\messages.py
+msgctxt "exam reminder"
+msgid "%(subject)s starts %(when)s"
+msgstr "%(subject)s starts %(when)s"
+
+#: apps\reminders\services\messages.py
+msgctxt "lecture reminder"
+msgid "%(subject)s starts %(when)s"
+msgstr "%(subject)s starts %(when)s"
+
+#: apps\reminders\services\messages.py
+msgctxt "time of day"
+msgid "AM"
+msgstr "AM"
+
+#: apps\reminders\services\messages.py
+msgid "Exam reminder"
+msgstr "Exam reminder"
+
+#: apps\reminders\services\messages.py
+msgid "Lecture reminder"
+msgstr "Lecture reminder"
+
+#: apps\reminders\services\messages.py
+msgctxt "time of day"
+msgid "PM"
+msgstr "PM"
+
+#: apps\reminders\services\messages.py
+msgid "Quiz reminder"
+msgstr "Quiz reminder"
+
+#: apps\reminders\services\messages.py
+msgid "TMA reminder"
+msgstr "TMA reminder"
+
+#: apps\reminders\services\messages.py
+msgid "on %(date)s at %(time)s"
+msgstr "on %(date)s at %(time)s"
+
+#: apps\reminders\services\messages.py
+msgid "today at %(time)s"
+msgstr "today at %(time)s"
+
+#: apps\reminders\services\messages.py
+msgid "tomorrow at %(time)s"
+msgstr "tomorrow at %(time)s"
+
+#: apps\reminders\services\rules.py
+msgid "Choose between 1 and 5 reminder times."
+msgstr "Choose between 1 and 5 reminder times."
+
+#: apps\reminders\services\rules.py
+msgid "Each reminder time must be between 5 minutes and 14 days before."
+msgstr "Each reminder time must be between 5 minutes and 14 days before."
+
+#: apps\reminders\services\rules.py
+msgid "Reminder times must be unique."
+msgstr "Reminder times must be unique."
+
+#: apps\schedule\admin.py
+msgid "deleted"
+msgstr "deleted"
+
+#: apps\schedule\api\serializers.py
+msgid "The range can be at most 62 days."
+msgstr "The range can be at most 62 days."
+
+#: apps\schedule\api\serializers.py
+msgid "`to` must be after `from`."
+msgstr "`to` must be after `from`."
+
+#: apps\schedule\apps.py
+msgid "Schedule"
+msgstr "Schedule"
+
+#: apps\schedule\models.py
+msgid "Exam"
+msgstr "Exam"
+
+#: apps\schedule\models.py
+msgid "Lecture"
+msgstr "Lecture"
+
+#: apps\schedule\models.py
+msgid "Manual"
+msgstr "Manual"
+
+#: apps\schedule\models.py
+msgid "Moodle"
+msgstr "Moodle"
+
+#: apps\schedule\models.py
+msgid "Moodle course id"
+msgstr "Moodle course id"
+
+#: apps\schedule\models.py
+msgid "Quiz"
+msgstr "Quiz"
+
+#: apps\schedule\models.py
+msgid "TMA"
+msgstr "TMA"
+
+#: apps\schedule\models.py
+msgid "active"
+msgstr "active"
+
+#: apps\schedule\models.py
+msgid "available from"
+msgstr "available from"
+
+#: apps\schedule\models.py
+msgid "code"
+msgstr "code"
+
+#: apps\schedule\models.py
+msgid "course"
+msgstr "course"
+
+#: apps\schedule\models.py
+msgid "courses"
+msgstr "courses"
+
+#: apps\schedule\models.py
+msgid "deleted at"
+msgstr "deleted at"
+
+#: apps\schedule\models.py
+msgid "duration (minutes)"
+msgstr "duration (minutes)"
+
+#: apps\schedule\models.py
+msgid "ends at"
+msgstr "ends at"
+
+#: apps\schedule\models.py
+msgid "ends on"
+msgstr "ends on"
+
+#: apps\schedule\models.py
+msgid "enrollment"
+msgstr "enrollment"
+
+#: apps\schedule\models.py
+msgid "enrollments"
+msgstr "enrollments"
+
+#: apps\schedule\models.py
+msgid "external id"
+msgstr "external id"
+
+#: apps\schedule\models.py
+msgid "item"
+msgstr "item"
+
+#: apps\schedule\models.py
+msgid "items"
+msgstr "items"
+
+#: apps\schedule\models.py
+msgid "lecture schedule"
+msgstr "lecture schedule"
+
+#: apps\schedule\models.py
+msgid "lecture schedules"
+msgstr "lecture schedules"
+
+#: apps\schedule\models.py
+msgid "location"
+msgstr "location"
+
+#: apps\schedule\models.py
+msgid "muted"
+msgstr "muted"
+
+#: apps\schedule\models.py
+msgid "name"
+msgstr "name"
+
+#: apps\schedule\models.py
+msgid "scheduled at"
+msgstr "scheduled at"
+
+#: apps\schedule\models.py
+msgid "source"
+msgstr "source"
+
+#: apps\schedule\models.py
+msgid "start time"
+msgstr "start time"
+
+#: apps\schedule\models.py
+msgid "starts on"
+msgstr "starts on"
+
+#: apps\schedule\models.py
+msgid "timezone"
+msgstr "timezone"
+
+#: apps\schedule\models.py
+msgid "title"
+msgstr "title"
+
+#: apps\schedule\models.py
+msgid "type"
+msgstr "type"
+
+#: apps\schedule\models.py
+msgid "url"
+msgstr "url"
+
+#: apps\schedule\models.py
+msgid "weekdays"
+msgstr "weekdays"
+
+#: apps\schedule\services\items.py
+msgid "Lecture occurrences are changed from the lecture schedule."
+msgstr "Lecture occurrences are changed from the lecture schedule."
+
+#: apps\schedule\services\items.py
+msgid "The end time must be after the start time."
+msgstr "The end time must be after the start time."
+
+#: apps\schedule\services\lectures.py
+msgid "A lecture schedule can span at most one year."
+msgstr "A lecture schedule can span at most one year."
+
+#: apps\schedule\services\lectures.py
+msgid "Choose at least one day of the week."
+msgstr "Choose at least one day of the week."
+
+#: apps\schedule\services\lectures.py
+msgid "Duration must be between 1 and 600 minutes."
+msgstr "Duration must be between 1 and 600 minutes."
+
+#: apps\schedule\services\lectures.py
+msgid "The end date must be on or after the start date."
+msgstr "The end date must be on or after the start date."
+
+#: apps\schedule\services\lectures.py
+msgid "Unknown course."
+msgstr "Unknown course."
+
+#: apps\support\admin.py
+msgid "Mark as closed"
+msgstr "Mark as closed"
+
+#: apps\support\admin.py
+msgid "Mark as in progress"
+msgstr "Mark as in progress"
+
+#: apps\support\admin.py
+msgid "Mark as resolved"
+msgstr "Mark as resolved"
+
+#: apps\support\admin.py
+msgid "Reply sent to the student."
+msgstr "Reply sent to the student."
+
+#: apps\support\admin.py
+msgid "Status updated."
+msgstr "Status updated."
+
+#: apps\support\admin.py
+msgid "conversation"
+msgstr "conversation"
+
+#: apps\support\admin.py
+msgid "image"
+msgstr "image"
+
+#: apps\support\admin.py
+msgid "new reply"
+msgstr "new reply"
+
+#: apps\support\admin.py
+msgid "reply"
+msgstr "reply"
+
+#: apps\support\admin.py
+msgid "reply to the student"
+msgstr "reply to the student"
+
+#: apps\support\api\serializers.py
+msgid "Must be a JSON object."
+msgstr "Must be a JSON object."
+
+#: apps\support\apps.py
+msgid "Support"
+msgstr "Support"
+
+#: apps\support\models.py
+msgid "Closed"
+msgstr "Closed"
+
+#: apps\support\models.py
+msgid "In progress"
+msgstr "In progress"
+
+#: apps\support\models.py
+msgid "Login problem"
+msgstr "Login problem"
+
+#: apps\support\models.py
+msgid "New"
+msgstr "New"
+
+#: apps\support\models.py
+msgid "Other"
+msgstr "Other"
+
+#: apps\support\models.py
+msgid "Reminder not received"
+msgstr "Reminder not received"
+
+#: apps\support\models.py
+msgid "Resolved"
+msgstr "Resolved"
+
+#: apps\support\models.py
+msgid "Telegram problem"
+msgstr "Telegram problem"
+
+#: apps\support\models.py
+msgid "Wrong date or time"
+msgstr "Wrong date or time"
+
+#: apps\support\models.py
+msgid "app version"
+msgstr "app version"
+
+#: apps\support\models.py
+msgid "body"
+msgstr "body"
+
+#: apps\support\models.py
+msgid "category"
+msgstr "category"
+
+#: apps\support\models.py
+msgid "description"
+msgstr "description"
+
+#: apps\support\models.py
+msgid "device info"
+msgstr "device info"
+
+#: apps\support\models.py
+msgid "file"
+msgstr "file"
+
+#: apps\support\models.py
+msgid "report"
+msgstr "report"
+
+#: apps\support\models.py
+msgid "report attachment"
+msgstr "report attachment"
+
+#: apps\support\models.py
+msgid "report attachments"
+msgstr "report attachments"
+
+#: apps\support\models.py
+msgid "report replies"
+msgstr "report replies"
+
+#: apps\support\models.py
+msgid "report reply"
+msgstr "report reply"
+
+#: apps\support\models.py
+msgid "reports"
+msgstr "reports"
+
+#: apps\support\models.py
+msgid "staff reply"
+msgstr "staff reply"
+
+#: apps\support\models.py
+msgid "status"
+msgstr "status"
+
+#: apps\support\services\reports.py
+msgid "Each image must be 5 MB or smaller."
+msgstr "Each image must be 5 MB or smaller."
+
+#: apps\support\services\reports.py
+msgid "New reply on your report"
+msgstr "New reply on your report"
+
+#: apps\support\services\reports.py
+msgid "Only image files can be attached."
+msgstr "Only image files can be attached."
+
+#: apps\support\services\reports.py
+msgid "Unknown category."
+msgstr "Unknown category."
+
+#: apps\support\services\reports.py
+msgid "Unknown status."
+msgstr "Unknown status."
+
+#: apps\support\services\reports.py
+msgid "You can attach up to 3 images."
+msgstr "You can attach up to 3 images."
+
+#: config\settings\base.py
+msgid "Zakerni"
+msgstr "Zakerni"
+
+#: config\settings\base.py
+msgid "Zakerni Admin"
+msgstr "Zakerni Admin"
+
+#: templates\admin\index.html
+msgid "Last 10 failed syncs"
+msgstr "Last 10 failed syncs"
+
+#: templates\admin\index.html
+msgid "No failed syncs."
+msgstr "No failed syncs."
+
+#: templates\admin\index.html
+msgid "Reminders sent per day (14 days)"
+msgstr "Reminders sent per day (14 days)"
+
+#: apps/support/consumers.py
+msgid "Invalid JSON."
+msgstr ""
+
+#: apps/support/consumers.py
+msgid "Unknown message type."
+msgstr ""
+
+#: apps/support/services/reports.py
+msgid "This field may not be blank."
+msgstr ""
+
+#: apps/support/services/reports.py
+msgid "Ensure this field has no more than 5000 characters."
+msgstr ""
+
+#: templates/admin/support/report_live_thread.html
+msgid "Live conversation"
+msgstr ""
+
+#: apps/support/admin.py
+msgid "Staff"
+msgstr ""
+
+#: apps/support/admin.py
+msgid "Student"
+msgstr ""
+
+#: templates/admin/support/report_live_thread.html
+msgid "Write a reply to the student"
+msgstr ""
+
+#: templates/admin/support/report_live_thread.html
+msgid "Send"
+msgstr ""
+
+#: apps/support/admin.py
+msgid "Live"
+msgstr ""
+
+#: apps/support/admin.py
+msgid "Offline, reconnecting"
+msgstr ""
+
+#: apps/schedule/services/items.py
+msgid "The opening time must be before the close time."
+msgstr "The opening time must be before the close time."
+
+#: apps/schedule/services/items.py
+msgid "This type cannot be added manually."
+msgstr "This type cannot be added manually."
+
+#: apps/reminders/services/messages.py
+msgid "Online (Teams)"
+msgstr "Online (Teams)"
+
+#: apps/reminders/services/messages.py
+#, python-format
+msgid "Location: %(location)s"
+msgstr "Location: %(location)s"
+
+#: apps/reminders/services/messages.py
+#, python-format
+msgid "Tutor: %(tutor)s"
+msgstr "Tutor: %(tutor)s"
+
+#: apps/reminders/services/messages.py
+#, python-format
+msgid "Join: %(url)s"
+msgstr "Join: %(url)s"
+
+#: apps/core/exceptions.py
+msgid "Incorrect SIS username or password."
+msgstr "Incorrect SIS username or password."
+
+#: apps/core/exceptions.py
+msgid "The student information system is currently unavailable. Please try again later."
+msgstr "The student information system is currently unavailable. Please try again later."
+
+#: apps/sis/services/sync.py
+msgid "Reconnect the SIS"
+msgstr "Reconnect the SIS"
+
+#: apps/sis/services/sync.py
+msgid "Your SIS password no longer works. Reconnect it in Settings to keep your exams and lectures up to date."
+msgstr "Your SIS password no longer works. Reconnect it in Settings to keep your exams and lectures up to date."
+
+#: apps/sis/apps.py
+msgid "Student information system"
+msgstr "Student information system"
+
+#: apps/sis/models.py
+msgid "SIS account"
+msgstr "SIS account"
+
+#: apps/sis/models.py
+msgid "SIS accounts"
+msgstr "SIS accounts"
+
+#: apps/sis/models.py
+msgid "SIS sync log"
+msgstr "SIS sync log"
+
+#: apps/sis/models.py
+msgid "SIS sync logs"
+msgstr "SIS sync logs"
+
+#: apps/sis/models.py
+msgid "Invalid credentials"
+msgstr "Invalid credentials"
+
+#: apps/schedule/models.py
+msgid "SIS"
+msgstr "SIS"

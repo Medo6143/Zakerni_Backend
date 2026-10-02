@@ -1,0 +1,21 @@
+{
+  "IsValid": true,
+  "Id": "2026123456",
+  "StudentArabicName": "Test Student",
+  "StudentEnglishName": "Test Student",
+  "BranchId": 5,
+  "ActualCenterId": 21,
+  "AcademicYear": 2026,
+  "AcademicSem": 1,
+  "ApplicantId": 0,
+  "NationalCode": "",
+  "CertificationId": 0,
+  "TrackId": 3,
+  "AdvisorID": 0,
+  "Token": "student-token-fixture",
+  "ForceChangePassword": false,
+  "ForceChangePhone": false,
+  "ForceSurvey": false,
+  "SurveyRequired": false,
+  "showprospectedgraduatecontactinfopage": false
+}

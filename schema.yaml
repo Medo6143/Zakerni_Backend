@@ -1,0 +1,2371 @@
+openapi: 3.0.3
+info:
+  title: Zakerni API
+  version: 1.0.0
+  description: |-
+    Backend API for the Zakerni (ذكّرني) student reminder app.
+
+    **Real-time report chat (WebSocket, not described by OpenAPI).** Connect to `ws://<host>/ws/v1/reports/<report_id>/?token=<JWT access token>` (admin pages use the session cookie instead). Only the report owner or staff may join: close code `4401` = missing/invalid/expired token, `4403` = not allowed. Send `{"type": "message", "body": "<text>"}`; everyone in the thread receives `{"type": "reply.created", "reply": <ReportReply>}` (same shape as in `GET /reports/{id}`), also for replies posted through REST or the admin. Validation problems come back as `{"type": "error", "error": {"code", "message", "details"}}`. See docs/05-api-spec.md.
+paths:
+  /api/v1/auth/login:
+    post:
+      operationId: auth_login_create
+      summary: Log in with LMS credentials (the password is never stored)
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/auth/logout:
+    post:
+      operationId: auth_logout_create
+      summary: Blacklist the refresh token and deactivate the device
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/auth/refresh:
+    post:
+      operationId: auth_refresh_create
+      summary: Rotate the refresh token
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/courses:
+    get:
+      operationId: courses_list
+      tags:
+      - courses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+          description: ''
+  /api/v1/courses/{course_id}:
+    get:
+      operationId: courses_retrieve
+      summary: 'Course detail: tutor, group, next 30 days of items and lecture times'
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - courses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+    patch:
+      operationId: courses_partial_update
+      summary: Mute or unmute a course
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseMuteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseMuteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseMuteRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/devices:
+    post:
+      operationId: devices_create
+      summary: Register or refresh an FCM token (upsert)
+      tags:
+      - devices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceRegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeviceRegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeviceRegisterRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/devices/{fcm_token}:
+    delete:
+      operationId: devices_destroy
+      summary: Deactivate an FCM token
+      parameters:
+      - in: path
+        name: fcm_token
+        schema:
+          type: string
+        required: true
+      tags:
+      - devices
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/health/:
+    get:
+      operationId: health_retrieve
+      description: Unauthenticated smoke-test endpoint used by Phase 0 tooling and
+        infra checks.
+      tags:
+      - meta
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+          description: ''
+  /api/v1/items:
+    get:
+      operationId: items_list
+      summary: Items in a date range (not paginated)
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: string
+          format: uuid
+        description: Only items of this course
+      - in: query
+        name: from
+        schema:
+          type: string
+        description: 'Range start (inclusive): ISO 8601, or `now` for upcoming items'
+        required: true
+      - in: query
+        name: to
+        schema:
+          type: string
+          format: date-time
+        description: 'Range end (exclusive), at most 62 days after `from`. Default:
+          `from` + 62 days'
+      - in: query
+        name: type
+        schema:
+          enum:
+          - quiz
+          - tma
+          - exam
+          - lecture
+          type: string
+          minLength: 1
+        description: |-
+          Only items of this type
+
+          * `quiz` - Quiz
+          * `tma` - TMA
+          * `exam` - Exam
+          * `lecture` - Lecture
+      tags:
+      - items
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+    post:
+      operationId: items_create
+      summary: Create a manual exam or quiz
+      tags:
+      - items
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ItemCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ItemCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/items/{item_id}:
+    get:
+      operationId: items_retrieve
+      parameters:
+      - in: path
+        name: item_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - items
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+    patch:
+      operationId: items_partial_update
+      summary: Update a manual exam or quiz
+      parameters:
+      - in: path
+        name: item_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - items
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedItemUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedItemUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedItemUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+    delete:
+      operationId: items_destroy
+      summary: Delete a manual exam or quiz
+      parameters:
+      - in: path
+        name: item_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - items
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/items/{item_id}/mute:
+    patch:
+      operationId: items_mute_partial_update
+      summary: Mute or unmute one item
+      parameters:
+      - in: path
+        name: item_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - items
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedItemMuteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedItemMuteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedItemMuteRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/items/{item_id}/reminders:
+    put:
+      operationId: items_reminders_update
+      summary: Custom reminder times for one item
+      parameters:
+      - in: path
+        name: item_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - reminders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemReminderOverrideRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ItemReminderOverrideRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ItemReminderOverrideRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+    delete:
+      operationId: items_reminders_destroy
+      summary: Back to the type rule
+      parameters:
+      - in: path
+        name: item_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - reminders
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/lectures:
+    get:
+      operationId: lectures_list
+      tags:
+      - lectures
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LectureSchedule'
+          description: ''
+    post:
+      operationId: lectures_create
+      summary: Create a weekly lecture (occurrences are generated immediately)
+      tags:
+      - lectures
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LectureScheduleWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LectureScheduleWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LectureScheduleWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LectureSchedule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/lectures/{schedule_id}:
+    patch:
+      operationId: lectures_partial_update
+      summary: Update a lecture schedule (future occurrences are regenerated)
+      parameters:
+      - in: path
+        name: schedule_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - lectures
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLectureScheduleWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLectureScheduleWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLectureScheduleWriteRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LectureSchedule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+    delete:
+      operationId: lectures_destroy
+      summary: Delete a lecture schedule (future occurrences are removed)
+      parameters:
+      - in: path
+        name: schedule_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - lectures
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/me:
+    get:
+      operationId: me_retrieve
+      summary: Current user
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: me_partial_update
+      summary: Update language / timezone
+      tags:
+      - me
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+    delete:
+      operationId: me_destroy
+      summary: Delete the account and all personal data (reports are anonymised)
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/me/lms:
+    get:
+      operationId: me_lms_retrieve
+      summary: LMS connection and last sync status
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LmsStatus'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/me/lms/sync:
+    post:
+      operationId: me_lms_sync_create
+      summary: Trigger an LMS sync now (throttled to 1 per 5 minutes)
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LmsStatus'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/me/sis:
+    get:
+      operationId: me_sis_retrieve
+      summary: SIS connection and last sync status (never the password)
+      tags:
+      - sis
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SisStatus'
+          description: ''
+    post:
+      operationId: me_sis_create
+      summary: 'Connect the SIS: signs in once to verify, then stores the password
+        encrypted and starts a sync'
+      tags:
+      - sis
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SisConnectRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SisConnectRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SisConnectRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SisStatus'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+    delete:
+      operationId: me_sis_destroy
+      summary: 'Disconnect the SIS: deletes the stored password and the imported future
+        exams and timetables'
+      tags:
+      - sis
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/me/sis/sync:
+    post:
+      operationId: me_sis_sync_create
+      summary: Trigger an SIS sync now (throttled to 1 per 5 minutes)
+      tags:
+      - sis
+      security:
+      - jwtAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SisStatus'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/meta/app:
+    get:
+      operationId: meta_app_retrieve
+      summary: App version and links
+      tags:
+      - meta
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppMeta'
+          description: ''
+  /api/v1/notifications:
+    get:
+      operationId: notifications_retrieve
+      summary: Notification history, newest first (cursor paginated, 20 per page)
+      parameters:
+      - in: query
+        name: cursor
+        schema:
+          type: string
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotification'
+          description: ''
+  /api/v1/notifications/mark-read:
+    post:
+      operationId: notifications_mark_read_create
+      summary: Mark notifications as read (empty ids = all)
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarkReadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MarkReadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MarkReadRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/notifications/unread-count:
+    get:
+      operationId: notifications_unread_count_retrieve
+      summary: Unread notifications count
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnreadCount'
+          description: ''
+  /api/v1/reminder-rules:
+    get:
+      operationId: reminder_rules_list
+      summary: Reminder rules (always one per item type)
+      tags:
+      - reminders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReminderRule'
+          description: ''
+  /api/v1/reminder-rules/{item_type}:
+    put:
+      operationId: reminder_rules_update
+      summary: Replace the rule of one item type (reschedules future reminders)
+      parameters:
+      - in: path
+        name: item_type
+        schema:
+          type: string
+          enum:
+          - exam
+          - lecture
+          - quiz
+          - tma
+        required: true
+      tags:
+      - reminders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderRuleUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReminderRuleUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReminderRuleUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderRule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/reminder-rules/confirm-defaults:
+    post:
+      operationId: reminder_rules_confirm_defaults_create
+      summary: 'Onboarding: confirm the default reminders'
+      tags:
+      - reminders
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/reports:
+    get:
+      operationId: reports_list
+      summary: My reports
+      tags:
+      - reports
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Report'
+          description: ''
+    post:
+      operationId: reports_create
+      summary: Report a problem (multipart, up to 3 images of 5 MB)
+      tags:
+      - reports
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReportCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/reports/{report_id}:
+    get:
+      operationId: reports_retrieve
+      summary: Report with replies
+      parameters:
+      - in: path
+        name: report_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - reports
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/reports/{report_id}/replies:
+    post:
+      operationId: reports_replies_create
+      summary: Add a follow-up to my report
+      parameters:
+      - in: path
+        name: report_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - reports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportReplyCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReportReplyCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReportReplyCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportReply'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/reports/categories:
+    get:
+      operationId: reports_categories_list
+      summary: Report categories (translated)
+      tags:
+      - reports
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportCategory'
+          description: ''
+  /api/v1/telegram:
+    get:
+      operationId: telegram_retrieve
+      summary: Telegram link status
+      tags:
+      - telegram
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramStatus'
+          description: ''
+    delete:
+      operationId: telegram_destroy
+      summary: Unlink Telegram
+      tags:
+      - telegram
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/telegram/link:
+    post:
+      operationId: telegram_link_create
+      summary: Create a one-time deep link (10 min TTL)
+      tags:
+      - telegram
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramLink'
+          description: ''
+  /api/v1/telegram/webhook:
+    post:
+      operationId: telegram_webhook_create
+      description: Called by Telegram. Protected by ``X-Telegram-Bot-Api-Secret-Token``.
+      summary: Telegram bot webhook (public, secret header)
+      tags:
+      - telegram
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TelegramUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TelegramUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TelegramUpdateRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+components:
+  schemas:
+    AppMeta:
+      type: object
+      properties:
+        min_supported_version:
+          type: string
+        latest_version:
+          type: string
+        privacy_url:
+          type: string
+        support_telegram:
+          type: string
+      required:
+      - latest_version
+      - min_supported_version
+      - privacy_url
+      - support_telegram
+    Course:
+      type: object
+      description: An enrolled course. ``id`` is the course id; ``upcoming_count``
+        counts items from now on.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        is_muted:
+          type: boolean
+          readOnly: true
+          title: Muted
+        upcoming_count:
+          type: integer
+          readOnly: true
+      required:
+      - code
+      - id
+      - is_muted
+      - name
+      - upcoming_count
+    CourseDetail:
+      type: object
+      description: |-
+        ``GET /courses/{id}``: shaped from ``selectors.CourseDetail``. Items use the ``/items``
+        shape (serializer context needs ``rules``).
+      properties:
+        course:
+          allOf:
+          - $ref: '#/components/schemas/CourseSummary'
+          readOnly: true
+        is_muted:
+          type: boolean
+          readOnly: true
+        group_name:
+          type: string
+          readOnly: true
+        tutor_name:
+          type: string
+          readOnly: true
+        upcoming_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+          readOnly: true
+        lecture_schedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/LectureSchedule'
+          readOnly: true
+      required:
+      - course
+      - group_name
+      - is_muted
+      - lecture_schedules
+      - tutor_name
+      - upcoming_items
+    CourseSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          maxLength: 64
+        name:
+          type: string
+          maxLength: 255
+      required:
+      - id
+    Device:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        platform:
+          allOf:
+          - $ref: '#/components/schemas/DevicePlatformEnum'
+          readOnly: true
+        app_version:
+          type: string
+          readOnly: true
+        os_version:
+          type: string
+          readOnly: true
+        model:
+          type: string
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Active
+        last_seen_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - app_version
+      - id
+      - is_active
+      - last_seen_at
+      - model
+      - os_version
+      - platform
+    DevicePlatformEnum:
+      enum:
+      - android
+      - ios
+      type: string
+      description: |-
+        * `android` - Android
+        * `ios` - iOS
+    DeviceRegisterRequest:
+      type: object
+      properties:
+        fcm_token:
+          type: string
+          minLength: 1
+          maxLength: 4096
+        platform:
+          $ref: '#/components/schemas/DevicePlatformEnum'
+        app_version:
+          type: string
+          default: ''
+          maxLength: 32
+        os_version:
+          type: string
+          default: ''
+          maxLength: 32
+        model:
+          type: string
+          default: ''
+          maxLength: 128
+      required:
+      - fcm_token
+      - platform
+    ErrorBody:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: {}
+      required:
+      - code
+      - details
+      - message
+    ErrorEnvelope:
+      type: object
+      description: '``{"error": {"code", "message", "details"}}`` for every non-2xx
+        response.'
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorBody'
+      required:
+      - error
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+      - status
+    Item:
+      type: object
+      description: |-
+        A calendar item. ``reminders`` shows the effective offsets (per-item override or the
+        type rule) and the next pending reminder time.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        type:
+          allOf:
+          - $ref: '#/components/schemas/ItemTypeEnum'
+          readOnly: true
+        source:
+          allOf:
+          - $ref: '#/components/schemas/ItemSourceEnum'
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        course:
+          allOf:
+          - $ref: '#/components/schemas/CourseSummary'
+          readOnly: true
+          nullable: true
+        available_from:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        scheduled_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        ends_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        location:
+          type: string
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        is_muted:
+          type: boolean
+          readOnly: true
+          title: Muted
+        is_editable:
+          type: boolean
+          readOnly: true
+        reminders:
+          allOf:
+          - $ref: '#/components/schemas/ItemReminders'
+          readOnly: true
+        lecture_schedule_id:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+      required:
+      - available_from
+      - course
+      - ends_at
+      - id
+      - is_editable
+      - is_muted
+      - lecture_schedule_id
+      - location
+      - reminders
+      - scheduled_at
+      - source
+      - title
+      - type
+      - url
+    ItemCreateRequest:
+      type: object
+      description: '``ItemCreate``: exams and quizzes (lectures are created through
+        ``/lectures``).'
+      properties:
+        type:
+          allOf:
+          - $ref: '#/components/schemas/ItemCreateTypeEnum'
+          default: exam
+        available_from:
+          type: string
+          format: date-time
+          nullable: true
+        course_id:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        scheduled_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+          nullable: true
+        location:
+          type: string
+          maxLength: 255
+      required:
+      - scheduled_at
+      - title
+    ItemCreateTypeEnum:
+      enum:
+      - quiz
+      - exam
+      type: string
+      description: |-
+        * `quiz` - quiz
+        * `exam` - exam
+    ItemReminderOverrideRequest:
+      type: object
+      properties:
+        offsets_minutes:
+          type: array
+          items:
+            type: integer
+            maximum: 20160
+            minimum: 5
+          description: Minutes before the item; 1..5 unique values, each 5..20160.
+          maxItems: 5
+          minItems: 1
+      required:
+      - offsets_minutes
+    ItemReminders:
+      type: object
+      properties:
+        offsets_minutes:
+          type: array
+          items:
+            type: integer
+        is_override:
+          type: boolean
+        next_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - is_override
+      - next_at
+      - offsets_minutes
+    ItemSourceEnum:
+      enum:
+      - moodle
+      - manual
+      - sis
+      type: string
+      description: |-
+        * `moodle` - Moodle
+        * `manual` - Manual
+        * `sis` - SIS
+    ItemTypeEnum:
+      enum:
+      - quiz
+      - tma
+      - exam
+      - lecture
+      type: string
+      description: |-
+        * `quiz` - Quiz
+        * `tma` - TMA
+        * `exam` - Exam
+        * `lecture` - Lecture
+    LanguageEnum:
+      enum:
+      - ar
+      - en
+      type: string
+      description: |-
+        * `ar` - Arabic
+        * `en` - English
+    LectureSchedule:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        course:
+          allOf:
+          - $ref: '#/components/schemas/CourseSummary'
+          readOnly: true
+          nullable: true
+        title:
+          type: string
+          readOnly: true
+        weekdays:
+          type: array
+          items:
+            type: integer
+            maximum: 6
+            minimum: 0
+        start_time:
+          type: string
+          format: time
+        duration_minutes:
+          type: integer
+          readOnly: true
+          title: Duration (minutes)
+        location:
+          type: string
+          readOnly: true
+        starts_on:
+          type: string
+          format: date
+          readOnly: true
+        ends_on:
+          type: string
+          format: date
+          readOnly: true
+        timezone:
+          type: string
+          readOnly: true
+      required:
+      - course
+      - duration_minutes
+      - ends_on
+      - id
+      - location
+      - start_time
+      - starts_on
+      - timezone
+      - title
+      - weekdays
+    LectureScheduleWriteRequest:
+      type: object
+      properties:
+        course_id:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        weekdays:
+          type: array
+          items:
+            type: integer
+            maximum: 6
+            minimum: 0
+          description: 0=Monday .. 6=Sunday
+          maxItems: 7
+          minItems: 1
+        start_time:
+          type: string
+          format: time
+          description: Local time, e.g. 18:00
+        duration_minutes:
+          type: integer
+          maximum: 600
+          minimum: 1
+        location:
+          type: string
+          maxLength: 255
+        starts_on:
+          type: string
+          format: date
+        ends_on:
+          type: string
+          format: date
+      required:
+      - duration_minutes
+      - ends_on
+      - start_time
+      - starts_on
+      - title
+      - weekdays
+    LmsStatus:
+      type: object
+      description: 'Never includes the token (hard rule #2).'
+      properties:
+        status:
+          allOf:
+          - $ref: '#/components/schemas/LmsStatusEnum'
+          readOnly: true
+        last_synced_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        last_sync_error:
+          type: string
+          readOnly: true
+      required:
+      - last_sync_error
+      - last_synced_at
+      - status
+    LmsStatusEnum:
+      enum:
+      - active
+      - expired
+      - disabled
+      type: string
+      description: |-
+        * `active` - Active
+        * `expired` - Expired
+        * `disabled` - Disabled
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - username
+    LoginResponse:
+      type: object
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        is_new:
+          type: boolean
+      required:
+      - access
+      - is_new
+      - refresh
+      - user
+    LogoutRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+        fcm_token:
+          type: string
+      required:
+      - refresh
+    MarkReadRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Notification ids to mark as read; empty or omitted = all.
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/NotificationKindEnum'
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        body:
+          type: string
+          readOnly: true
+        item_id:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        report_id:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        read_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - body
+      - created_at
+      - id
+      - item_id
+      - kind
+      - read_at
+      - report_id
+      - title
+    NotificationKindEnum:
+      enum:
+      - reminder
+      - broadcast
+      - report_reply
+      - system
+      type: string
+      description: |-
+        * `reminder` - Reminder
+        * `broadcast` - Broadcast
+        * `report_reply` - Report reply
+        * `system` - System
+    NullEnum:
+      enum:
+      - null
+    Onboarding:
+      type: object
+      properties:
+        defaults_confirmed:
+          type: boolean
+      required:
+      - defaults_confirmed
+    PaginatedNotification:
+      type: object
+      properties:
+        next:
+          type: string
+          format: uri
+          nullable: true
+        previous:
+          type: string
+          format: uri
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+      required:
+      - next
+      - previous
+      - results
+    PatchedCourseMuteRequest:
+      type: object
+      properties:
+        is_muted:
+          type: boolean
+    PatchedItemMuteRequest:
+      type: object
+      properties:
+        is_muted:
+          type: boolean
+    PatchedItemUpdateRequest:
+      type: object
+      properties:
+        available_from:
+          type: string
+          format: date-time
+          nullable: true
+        course_id:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        scheduled_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+          nullable: true
+        location:
+          type: string
+          maxLength: 255
+    PatchedLectureScheduleWriteRequest:
+      type: object
+      properties:
+        course_id:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        weekdays:
+          type: array
+          items:
+            type: integer
+            maximum: 6
+            minimum: 0
+          description: 0=Monday .. 6=Sunday
+          maxItems: 7
+          minItems: 1
+        start_time:
+          type: string
+          format: time
+          description: Local time, e.g. 18:00
+        duration_minutes:
+          type: integer
+          maximum: 600
+          minimum: 1
+        location:
+          type: string
+          maxLength: 255
+        starts_on:
+          type: string
+          format: date
+        ends_on:
+          type: string
+          format: date
+    PatchedUserUpdateRequest:
+      type: object
+      properties:
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        timezone:
+          type: string
+          minLength: 1
+          maxLength: 64
+    RefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    ReminderRule:
+      type: object
+      properties:
+        item_type:
+          allOf:
+          - $ref: '#/components/schemas/ItemTypeEnum'
+          readOnly: true
+        offsets_minutes:
+          type: array
+          items:
+            type: integer
+        push_enabled:
+          type: boolean
+          readOnly: true
+        telegram_enabled:
+          type: boolean
+          readOnly: true
+      required:
+      - item_type
+      - offsets_minutes
+      - push_enabled
+      - telegram_enabled
+    ReminderRuleUpdateRequest:
+      type: object
+      properties:
+        offsets_minutes:
+          type: array
+          items:
+            type: integer
+            maximum: 20160
+            minimum: 5
+          description: Minutes before the item; 1..5 unique values, each 5..20160.
+          maxItems: 5
+          minItems: 1
+        push_enabled:
+          type: boolean
+        telegram_enabled:
+          type: boolean
+      required:
+      - offsets_minutes
+      - push_enabled
+      - telegram_enabled
+    Report:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        category:
+          allOf:
+          - $ref: '#/components/schemas/ReportCategoryEnum'
+          readOnly: true
+        category_label:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ReportStatusEnum'
+          readOnly: true
+        status_label:
+          type: string
+          readOnly: true
+        attachments:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportReply'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - attachments
+      - category
+      - category_label
+      - created_at
+      - description
+      - id
+      - replies
+      - status
+      - status_label
+    ReportCategory:
+      type: object
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+      required:
+      - code
+      - label
+    ReportCategoryEnum:
+      enum:
+      - reminder_not_received
+      - wrong_date
+      - login
+      - telegram
+      - other
+      type: string
+      description: |-
+        * `reminder_not_received` - Reminder not received
+        * `wrong_date` - Wrong date or time
+        * `login` - Login problem
+        * `telegram` - Telegram problem
+        * `other` - Other
+    ReportCreateRequest:
+      type: object
+      properties:
+        category:
+          $ref: '#/components/schemas/ReportCategoryEnum'
+        description:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        device_info:
+          type: object
+          additionalProperties: true
+        app_version:
+          type: string
+          maxLength: 32
+        attachments:
+          type: array
+          items:
+            type: string
+            format: binary
+          description: Up to 3 images (JPEG, PNG or WEBP), 5 MB each. `attachments[]`
+            is also accepted.
+      required:
+      - category
+      - description
+    ReportReply:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        body:
+          type: string
+          readOnly: true
+        is_staff:
+          type: boolean
+          readOnly: true
+          title: Staff reply
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - body
+      - created_at
+      - id
+      - is_staff
+    ReportReplyCreateRequest:
+      type: object
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 5000
+      required:
+      - body
+    ReportStatusEnum:
+      enum:
+      - new
+      - in_progress
+      - resolved
+      - closed
+      type: string
+      description: |-
+        * `new` - New
+        * `in_progress` - In progress
+        * `resolved` - Resolved
+        * `closed` - Closed
+    SisConnectRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 64
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 128
+      required:
+      - password
+      - username
+    SisStatus:
+      type: object
+      description: 'Status fields only: the password is never returned (CLAUDE.md
+        rule 2).'
+      properties:
+        connected:
+          type: boolean
+        username:
+          type: string
+        status:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/SisStatusEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        last_synced_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_sync_error:
+          type: string
+      required:
+      - connected
+      - last_sync_error
+      - last_synced_at
+      - status
+      - username
+    SisStatusEnum:
+      enum:
+      - active
+      - invalid_credentials
+      - error
+      - disabled
+      type: string
+      description: |-
+        * `active` - Active
+        * `invalid_credentials` - Invalid credentials
+        * `error` - Error
+        * `disabled` - Disabled
+    TelegramLink:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+        expires_at:
+          type: string
+          format: date-time
+      required:
+      - expires_at
+      - url
+    TelegramStatus:
+      type: object
+      properties:
+        linked:
+          type: boolean
+        username:
+          type: string
+          nullable: true
+        linked_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - linked
+      - linked_at
+      - username
+    TelegramUpdateRequest:
+      type: object
+      description: 'Documentation only: a Telegram ``Update`` object (only ``message``
+        is used).'
+      properties:
+        update_id:
+          type: integer
+        message:
+          type: object
+          additionalProperties: {}
+      required:
+      - update_id
+    TokenPair:
+      type: object
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    UnreadCount:
+      type: object
+      properties:
+        count:
+          type: integer
+      required:
+      - count
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        full_name:
+          type: string
+          maxLength: 255
+        moodle_username:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        timezone:
+          type: string
+          maxLength: 64
+        telegram_linked:
+          type: boolean
+          readOnly: true
+        onboarding:
+          allOf:
+          - $ref: '#/components/schemas/Onboarding'
+          readOnly: true
+      required:
+      - email
+      - id
+      - moodle_username
+      - onboarding
+      - telegram_linked
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: auth
+  description: LMS login and JWT tokens
+- name: me
+  description: Current user profile and LMS status
+- name: sis
+  description: Student information system connection and sync
+- name: items
+  description: Calendar items (quizzes, TMAs, exams, lectures)
+- name: lectures
+  description: Recurring lecture schedules
+- name: courses
+  description: Courses and per-course mute
+- name: reminders
+  description: Reminder rules and per-item overrides
+- name: devices
+  description: FCM device registration
+- name: telegram
+  description: Telegram linking and bot webhook
+- name: notifications
+  description: Notification history
+- name: reports
+  description: Support reports
+- name: meta
+  description: App metadata and health
