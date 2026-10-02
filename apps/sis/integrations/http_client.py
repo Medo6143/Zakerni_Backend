@@ -9,6 +9,9 @@ The contract was discovered from the public web client bundle (no official docs)
   with headers ``Authorization: <Token>`` (raw, no scheme) and ``stdtoken:
   base64(JSON {StudentId, AcademicYear, AcademicSem})`` -> a list of dated entries
   (``Event_Type`` "1" lecture, "2" exam, "3" university event).
+- ``GET {base}/api/AcademicSession/GetCurrentWebRegistrationAcademicSessions`` -> the
+  current academic year / semester (best effort: when it fails or has an unexpected
+  shape, the year / semester returned by the login are used).
 
 Everything is defensive: unknown or missing fields are skipped, and a response of an
 unexpected shape is logged (no secrets, no personal data) and raised as
@@ -21,6 +24,7 @@ import base64
 import json
 import logging
 import re
+from dataclasses import replace
 from datetime import date, time
 from http.cookies import CookieError, SimpleCookie
 from typing import Any
@@ -36,6 +40,7 @@ logger = logging.getLogger(__name__)
 
 LOGIN_PATH = "/api/Student/GetStudentByCredentials"
 SCHEDULE_PATH = "/api/StudentSchedule/GetStudentSchedules"
+CURRENT_SESSION_PATH = "/api/AcademicSession/GetCurrentWebRegistrationAcademicSessions"
 
 _RETRIABLE_STATUS = {502, 503, 504}
 _EVENT_KINDS: dict[str, SisEntryKind] = {"1": "lecture", "2": "exam"}
@@ -149,6 +154,8 @@ def _raw_scalar(value: Any) -> str | int:
         return ""
     if isinstance(value, int | str):
         return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)  # the SIS sends 2026.0; its stdtoken check needs 2026
     return _text(value)
 
 
@@ -169,6 +176,18 @@ def parse_login(data: Any, cookies: tuple[tuple[str, str], ...] = ()) -> SisSess
         academic_sem=_raw_scalar(data.get("AcademicSem")),
         cookies=cookies,
     )
+
+
+def parse_current_term(data: Any) -> tuple[str | int, str | int] | None:
+    """``(AcademicYear, AcademicSem)`` of the current registration session, or ``None``."""
+    rows = data if isinstance(data, list) else [data]
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        year, sem = _raw_scalar(row.get("AcademicYear")), _raw_scalar(row.get("AcademicSem"))
+        if year != "" and sem != "":
+            return year, sem
+    return None
 
 
 def student_headers(session: SisSession) -> dict[str, str]:
@@ -243,7 +262,28 @@ class HttpSisClient:
             raise SisUnavailable(details={"sis_error": f"http_{response.status_code}"})
         return parse_login(self._json(response, LOGIN_PATH), _set_cookies(response))
 
+    def _with_current_term(self, session: SisSession) -> SisSession:
+        """Align the ``stdtoken`` year / semester with the SIS' current session.
+
+        Never fatal: the schedule call still works with the login's values."""
+        try:
+            response = self._send(
+                "GET",
+                CURRENT_SESSION_PATH,
+                headers=student_headers(session),
+                cookies=dict(session.cookies),
+            )
+            if response.status_code >= 400:
+                return session
+            term = parse_current_term(response.json())
+        except (SisUnavailable, ValueError):
+            return session
+        if term is None:
+            return session
+        return replace(session, academic_year=term[0], academic_sem=term[1])
+
     def schedule(self, session: SisSession) -> list[SisScheduleEntry]:
+        session = self._with_current_term(session)
         # The web client sends its own "session id": <student id>_<yyyyMMddHHmmssSSS>.
         stamp = timezone.now().strftime("%Y%m%d%H%M%S%f")[:17]
         response = self._send(
