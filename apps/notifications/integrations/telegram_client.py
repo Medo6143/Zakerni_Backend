@@ -54,6 +54,28 @@ class HttpTelegramBotClient:
         except (httpx.HTTPError, ValueError):
             return False
 
+    def set_webhook(self, url: str, secret_token: str) -> tuple[bool, str]:
+        """Point the bot at ``url``; Telegram then sends ``secret_token`` in
+        ``X-Telegram-Bot-Api-Secret-Token``. Returns ``(ok, description)``; never
+        includes the request URL (it contains the bot token)."""
+        if not self._bot_token:
+            return False, "telegram_not_configured"
+        api_url = f"https://api.telegram.org/bot{self._bot_token}/setWebhook"
+        try:
+            data = httpx.post(
+                api_url,
+                json={
+                    "url": url,
+                    "secret_token": secret_token,
+                    "allowed_updates": ["message"],
+                    "drop_pending_updates": False,
+                },
+                timeout=self._timeout,
+            ).json()
+        except (httpx.HTTPError, ValueError) as exc:
+            return False, type(exc).__name__
+        return bool(data.get("ok")), str(data.get("description", ""))[:200]
+
     def send_message(self, chat_id: int, text: str) -> BotSendResult:
         if not self._bot_token:
             return BotSendResult(ok=False, error="telegram_not_configured")

@@ -118,6 +118,20 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Uploaded files (report attachments): Cloudinary when CLOUDINARY_URL is set (the SDK
+# reads it from the environment), otherwise the local MEDIA_ROOT.
+CLOUDINARY_URL = env("CLOUDINARY_URL", default="")
+STORAGES = {
+    "default": {
+        "BACKEND": (
+            "apps.core.storage.CloudinaryMediaStorage"
+            if CLOUDINARY_URL
+            else "django.core.files.storage.FileSystemStorage"
+        ),
+    },
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # --- DRF ----------------------------------------------------------------
@@ -286,6 +300,9 @@ TELEGRAM_HTTP_TIMEOUT_SECONDS = env.float("TELEGRAM_HTTP_TIMEOUT_SECONDS", defau
 
 # --- Firebase / FCM ---------------------------------------------------------
 FIREBASE_CREDENTIALS_FILE = env("FIREBASE_CREDENTIALS_FILE", default="")
+# Alternative for PaaS hosts without a file system for secrets (Railway): the full
+# service-account JSON in one variable. Takes precedence over the file. Never logged.
+FIREBASE_CREDENTIALS_JSON = env("FIREBASE_CREDENTIALS_JSON", default="")
 FCM_HTTP_TIMEOUT_SECONDS = env.float("FCM_HTTP_TIMEOUT_SECONDS", default=10.0)
 
 # --- Support reports ----------------------------------------------------------
@@ -325,6 +342,7 @@ LOGGING = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "stream": "ext://sys.stdout",
             "formatter": "verbose",
             "filters": ["scrub_credentials"],
         },

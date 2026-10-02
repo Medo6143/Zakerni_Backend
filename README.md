@@ -48,7 +48,7 @@ Beat schedule (`config/settings/base.py`):
 | `schedule.expand_lecture_schedules` | daily 00:10 Cairo |
 | `reminders.cleanup` / `notifications.cleanup_link_tokens` | daily 03:00 / 03:05 Cairo |
 
-External services: set `FIREBASE_CREDENTIALS_FILE` (service-account JSON) for push and
+External services: set `FIREBASE_CREDENTIALS_FILE` (service-account JSON path) or `FIREBASE_CREDENTIALS_JSON` (the JSON itself) for push and
 `TELEGRAM_BOT_TOKEN` + `TELEGRAM_WEBHOOK_SECRET` for Telegram, then point the bot
 webhook at `https://<host>/api/v1/telegram/webhook` with the same `secret_token`.
 Without credentials the clients return failed deliveries instead of raising.
@@ -63,7 +63,66 @@ Split by environment under `config/settings/`:
   (all variables are listed in `../.env.example`).
 - `dev.py` — local development (`DJANGO_SETTINGS_MODULE=config.settings.dev`, the default in `manage.py`).
 - `test.py` — used by `pytest` (sqlite in-memory, Celery eager, fixed test keys).
-- `prod.py` — HTTPS/HSTS hardening, explicit CORS allow-list.
+- `prod.py` — Railway/PaaS production: required secret key, hosts + CSRF origins (Railway domain added automatically), proxy SSL header, secure cookies, HSTS, WhiteNoise static files, stdout logging, explicit CORS allow-list.
+
+## Deploy on Railway
+
+One image (`Dockerfile`, Python 3.12, non-root, static files collected at build) runs as
+three services. Nothing secret is in the image: everything comes from Railway variables.
+
+1. Create a Railway project from this GitHub repo.
+2. Add the **PostgreSQL** and **Redis** plugins.
+3. Create three services from the same repo, each with **Root Directory** `backend`:
+
+   | Service name | What `start.sh` runs | Public domain |
+   |---|---|---|
+   | `web` | `migrate` then `daphne -b 0.0.0.0 -p $PORT config.asgi:application` | yes (Generate Domain) |
+   | `worker` | `celery -A config worker -l info --concurrency 2` | no |
+   | `beat` | `celery -A config beat -l info` (one replica only) | no |
+
+   The image CMD is `start.sh`, which picks the role from `SERVICE_ROLE` or else the
+   Railway service name, so the three services need no per-service start command.
+   `railway.json` sets the Dockerfile builder and restart on failure (no healthcheck,
+   because it applies to every service and only `web` serves HTTP).
+   Migrations run only in `web`.
+4. Set the variables below on all three services (shared variables or references such as
+   `${{Postgres.DATABASE_URL}}` and `${{Redis.REDIS_URL}}`).
+5. After the first successful deploy, register the Telegram webhook once:
+
+   ```bash
+   railway run python manage.py telegram_set_webhook --url https://<your-domain>
+   ```
+
+   It calls `setWebhook` for `https://<domain>/api/v1/telegram/webhook` with
+   `TELEGRAM_WEBHOOK_SECRET` as `secret_token` and never prints the bot token. Re-run it
+   if the domain changes. **Never run `telegram_poll` against the production bot**: it
+   deletes the webhook. Use a separate dev bot locally.
+6. Create an admin: `railway run python manage.py createsuperuser`.
+
+Variables (`config.settings.prod`):
+
+| Variable | Required | Notes |
+|---|---|---|
+| `DJANGO_SETTINGS_MODULE` | yes | `config.settings.prod` (also the image default) |
+| `DJANGO_SECRET_KEY` | yes | long random value; startup fails without it |
+| `DATABASE_URL` | yes | from the Postgres plugin |
+| `REDIS_URL` | yes | from the Redis plugin (Celery broker/results, Channels) |
+| `TOKEN_ENCRYPTION_KEY` | yes | Fernet key; must never change once tokens are stored |
+| `DJANGO_ALLOWED_HOSTS` | if custom domain | comma-separated; `RAILWAY_PUBLIC_DOMAIN` is added automatically |
+| `CSRF_TRUSTED_ORIGINS` | if custom domain | e.g. `https://api.example.com`; the Railway domain is added automatically |
+| `RAILWAY_PUBLIC_DOMAIN` | automatic | injected by Railway |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` | yes for Telegram | `TELEGRAM_BOT_USERNAME` too |
+| `FIREBASE_CREDENTIALS_JSON` | yes for push | whole service-account JSON; alternative `FIREBASE_CREDENTIALS_FILE` |
+| `CLOUDINARY_URL` | strongly recommended | report attachments; Railway disks are ephemeral, so without it uploads are lost on redeploy |
+| `CORS_ALLOWED_ORIGINS` | optional | the mobile app needs none |
+| `MOODLE_BASE_URL`, `MOODLE_SERVICE` | optional | defaults to AOU Egypt |
+| `SIS_API_BASE_URL`, `SIS_APP_USER_ID`, `SIS_APP_USERNAME`, `SIS_APP_PASSWORD`, `SIS_BRANCH_ID` | yes for SIS | see `.env.example` |
+| `APP_MIN_SUPPORTED_VERSION`, `APP_LATEST_VERSION`, `APP_PRIVACY_URL`, `APP_SUPPORT_TELEGRAM` | optional | `GET /meta/app` |
+| `SECURE_SSL_REDIRECT`, `SECURE_HSTS_SECONDS`, `SECURE_HSTS_INCLUDE_SUBDOMAINS`, `SECURE_HSTS_PRELOAD` | optional | defaults: true, 30 days, false, false (subdomains/preload only on your own domain) |
+| `LOG_LEVEL`, `DJANGO_LOG_LEVEL` | optional | default `INFO`; logs go to stdout, credentials scrubbed |
+| Tuning (`MOODLE_SYNC_INTERVAL_MINUTES`, `SIS_SYNC_INTERVAL_MINUTES`, `REMINDER_*`, `*_HTTP_TIMEOUT_SECONDS`, `TELEGRAM_LINK_TOKEN_TTL_MINUTES`, `DEFAULT_TIMEZONE`) | optional | see `.env.example` |
+
+Build locally: `docker build -t zakerni-backend ./backend` (from the repo root).
 
 ## API docs
 

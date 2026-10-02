@@ -144,3 +144,60 @@ def test_firebase_sender_without_credentials_never_raises() -> None:
 
     assert result.ok is False
     assert result.error == "fcm_not_configured"
+
+
+def test_firebase_credential_source_prefers_json_over_file() -> None:
+    from apps.notifications.integrations.fcm_sender import FirebasePushSender
+
+    sender = FirebasePushSender(
+        credentials_file="/path/sa.json",
+        credentials_json='{"type": "service_account", "project_id": "p"}',
+    )
+
+    assert sender.is_configured is True
+    assert sender.credential_source() == {"type": "service_account", "project_id": "p"}
+
+
+def test_firebase_credential_source_falls_back_to_file() -> None:
+    from apps.notifications.integrations.fcm_sender import FirebasePushSender
+
+    sender = FirebasePushSender(credentials_file="/path/sa.json", credentials_json="  ")
+
+    assert sender.is_configured is True
+    assert sender.credential_source() == "/path/sa.json"
+
+
+def test_firebase_invalid_json_error_does_not_echo_secret() -> None:
+    from apps.notifications.integrations.fcm_sender import FirebasePushSender
+
+    sender = FirebasePushSender(credentials_json='{"private_key": "SECRET-VALUE"')
+
+    with pytest.raises(ValueError) as excinfo:
+        sender.credential_source()
+    assert "SECRET-VALUE" not in str(excinfo.value)
+
+
+def test_firebase_sender_initialises_with_json_dict(monkeypatch) -> None:
+    import firebase_admin
+    from firebase_admin import credentials
+
+    from apps.notifications.integrations.fcm_sender import FirebasePushSender
+
+    seen: dict = {}
+    monkeypatch.setattr(firebase_admin, "get_app", lambda name: (_ for _ in ()).throw(ValueError()))
+    monkeypatch.setattr(credentials, "Certificate", lambda src: seen.setdefault("src", src))
+    monkeypatch.setattr(firebase_admin, "initialize_app", lambda cred, opts, name: "app")
+
+    sender = FirebasePushSender(credentials_json='{"type": "service_account"}')
+
+    assert sender._get_app() == "app"
+    assert seen["src"] == {"type": "service_account"}
+
+
+def test_firebase_sender_from_settings_reads_json(settings) -> None:
+    from apps.notifications.integrations.fcm_sender import FirebasePushSender
+
+    settings.FIREBASE_CREDENTIALS_FILE = ""
+    settings.FIREBASE_CREDENTIALS_JSON = '{"type": "service_account"}'
+
+    assert FirebasePushSender.from_settings().credential_source() == {"type": "service_account"}
