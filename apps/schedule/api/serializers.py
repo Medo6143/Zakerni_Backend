@@ -114,6 +114,25 @@ class ItemRangeQuerySerializer(serializers.Serializer):
         return attrs
 
 
+class ItemHistoryQuerySerializer(serializers.Serializer):
+    status = serializers.CharField(
+        required=False,
+        help_text="Comma separated statuses (e.g. `attended,done`). Default: any set status",
+    )
+    type = serializers.ChoiceField(
+        choices=ItemType.choices, required=False, help_text="Only items of this type"
+    )
+    course = serializers.UUIDField(required=False, help_text="Only items of this course")
+    cursor = serializers.CharField(required=False, help_text="Pagination cursor")
+
+    def validate_status(self, value: str) -> list[str]:
+        statuses = [part.strip() for part in value.split(",") if part.strip()]
+        invalid = [part for part in statuses if part not in ItemStatus.values]
+        if invalid:
+            raise serializers.ValidationError(_("Unknown status."))
+        return statuses
+
+
 class ItemCreateSerializer(serializers.Serializer):
     """``ItemCreate``: exams and quizzes (lectures are created through ``/lectures``)."""
 
@@ -225,3 +244,9 @@ class CourseDetailSerializer(serializers.Serializer):
 
 class CourseMuteSerializer(serializers.Serializer):
     is_muted = serializers.BooleanField()
+
+
+class PaginatedItemSerializer(serializers.Serializer):
+    next = serializers.URLField(allow_null=True)
+    previous = serializers.URLField(allow_null=True)
+    results = ItemSerializer(many=True)

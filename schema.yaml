@@ -631,6 +631,64 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
           description: ''
+  /api/v1/items/history:
+    get:
+      operationId: items_history_retrieve
+      summary: Items with a status set, newest first (cursor paginated, 20 per page)
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: string
+          format: uuid
+        description: Only items of this course
+      - in: query
+        name: cursor
+        schema:
+          type: string
+          minLength: 1
+        description: Pagination cursor
+      - in: query
+        name: status
+        schema:
+          type: string
+          minLength: 1
+        description: 'Comma separated statuses (e.g. `attended,done`). Default: any
+          set status'
+      - in: query
+        name: type
+        schema:
+          enum:
+          - quiz
+          - tma
+          - exam
+          - lecture
+          type: string
+          minLength: 1
+        description: |-
+          Only items of this type
+
+          * `quiz` - Quiz
+          * `tma` - TMA
+          * `exam` - Exam
+          * `lecture` - Lecture
+      tags:
+      - items
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedItem'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
   /api/v1/lectures:
     get:
       operationId: lectures_list
@@ -1973,6 +2031,25 @@ components:
           type: boolean
       required:
       - defaults_confirmed
+    PaginatedItem:
+      type: object
+      properties:
+        next:
+          type: string
+          format: uri
+          nullable: true
+        previous:
+          type: string
+          format: uri
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+      required:
+      - next
+      - previous
+      - results
     PaginatedNotification:
       type: object
       properties:

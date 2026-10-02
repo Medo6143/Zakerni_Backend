@@ -4,6 +4,7 @@ from apps.schedule.api.views import (
     CourseDetailView,
     CourseListView,
     ItemDetailView,
+    ItemHistoryView,
     ItemListCreateView,
     ItemMuteView,
     ItemStatusNoteView,
@@ -13,6 +14,7 @@ from apps.schedule.api.views import (
 
 urlpatterns = [
     path("items", ItemListCreateView.as_view(), name="items"),
+    path("items/history", ItemHistoryView.as_view(), name="items-history"),
     path("items/<uuid:item_id>", ItemDetailView.as_view(), name="item-detail"),
     path("items/<uuid:item_id>/mute", ItemMuteView.as_view(), name="item-mute"),
     path("items/<uuid:item_id>/status", ItemStatusNoteView.as_view(), name="item-status"),

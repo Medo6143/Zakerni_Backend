@@ -52,6 +52,28 @@ def items_in_range(
     return _with_reminder_info(queryset).order_by("scheduled_at", "title")
 
 
+def items_history(
+    user: User,
+    *,
+    statuses: list[str] | None = None,
+    item_type: str | None = None,
+    course_id: uuid.UUID | None = None,
+) -> QuerySet[Item]:
+    """The user's non-deleted items that have a status set (any status when
+    ``statuses`` is empty), newest ``scheduled_at`` first. Undated items are left
+    out because the cursor pagination orders on ``scheduled_at``."""
+    queryset = Item.objects.filter(
+        user=user, deleted_at__isnull=True, scheduled_at__isnull=False
+    ).exclude(status="")
+    if statuses:
+        queryset = queryset.filter(status__in=statuses)
+    if item_type:
+        queryset = queryset.filter(type=item_type)
+    if course_id:
+        queryset = queryset.filter(course_id=course_id)
+    return _with_reminder_info(queryset).order_by("-scheduled_at", "-id")
+
+
 def item_for_user(user: User, item_id: uuid.UUID) -> Item:
     item = _with_reminder_info(_live_items(user).filter(id=item_id)).first()
     if item is None:

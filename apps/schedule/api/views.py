@@ -7,6 +7,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.core.api.pagination import CursorSetPagination
 from apps.core.api.serializers import ERRORS_400, ERRORS_400_404, ERRORS_404
 from apps.schedule.api.presenters import course_detail_payload, item_payload, items_payload
 from apps.schedule.api.serializers import (
@@ -14,6 +15,7 @@ from apps.schedule.api.serializers import (
     CourseMuteSerializer,
     CourseSerializer,
     ItemCreateSerializer,
+    ItemHistoryQuerySerializer,
     ItemMuteSerializer,
     ItemRangeQuerySerializer,
     ItemSerializer,
@@ -21,11 +23,13 @@ from apps.schedule.api.serializers import (
     ItemUpdateSerializer,
     LectureScheduleSerializer,
     LectureScheduleWriteSerializer,
+    PaginatedItemSerializer,
 )
 from apps.schedule.selectors import (
     enrollment_for_user,
     enrollments_for_user,
     item_for_user,
+    items_history,
     items_in_range,
     lecture_schedule_for_user,
     lecture_schedules_for_user,
@@ -68,6 +72,35 @@ class ItemListCreateView(APIView):
             request.user, scheduler=container.reminder_scheduler(), **serializer.validated_data
         )
         return Response(item_payload(request.user, item.id), status=201)
+
+
+class ItemHistoryPagination(CursorSetPagination):
+    page_size = 20
+    ordering = ("-scheduled_at", "-id")
+
+
+@extend_schema(tags=["items"])
+class ItemHistoryView(APIView):
+    pagination_class = ItemHistoryPagination
+
+    @extend_schema(
+        summary="Items with a status set, newest first (cursor paginated, 20 per page)",
+        parameters=[ItemHistoryQuerySerializer],
+        responses={200: PaginatedItemSerializer, **ERRORS_400},
+    )
+    def get(self, request: Request) -> Response:
+        query = ItemHistoryQuerySerializer(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        data = query.validated_data
+        items = items_history(
+            request.user,
+            statuses=data.get("status"),
+            item_type=data.get("type"),
+            course_id=data.get("course"),
+        )
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(items, request, view=self)
+        return paginator.get_paginated_response(items_payload(request.user, page or []))
 
 
 @extend_schema(tags=["items"])
