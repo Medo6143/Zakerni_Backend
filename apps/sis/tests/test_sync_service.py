@@ -148,6 +148,17 @@ def test_without_matching_enrollment_items_have_no_course(sync, account) -> None
 
 
 @freeze_time(NOW)
+def test_group_suffix_in_sis_code_still_links_the_course(sync, account, sis) -> None:
+    course = CourseFactory(code="EL112", name="English")
+    EnrollmentFactory(user=account.user, course=course)
+    sis.entries_by_user[USERNAME] = [lecture(date(2026, 10, 5), code="EL112 (28)")]
+
+    sync(account)
+
+    assert LectureSchedule.objects.get(user=account.user).course_id == course.id
+
+
+@freeze_time(NOW)
 def test_moved_exam_is_updated_and_rescheduled(sync, account, sis) -> None:
     sync(account)
     item = Item.objects.get(type=ItemType.EXAM, user=account.user)

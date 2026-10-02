@@ -15,6 +15,7 @@ All SIS calls happen before the database transaction.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
@@ -91,6 +92,9 @@ def _local_zone() -> ZoneInfo:
         return ZoneInfo("Africa/Cairo")
 
 
+_GROUP_SUFFIX = re.compile(r"\s*\([^)]*\)\s*$")
+
+
 def _code_tokens(code: str) -> set[str]:
     upper = code.upper()
     tokens = {normalize_code(t) for t in upper.replace("_", " ").replace("-", " ").split()}
@@ -106,7 +110,8 @@ class _CourseIndex:
         )
 
     def find(self, sis_code: str) -> Enrollment | None:
-        wanted = normalize_code(sis_code)
+        # The SIS appends the student's group, e.g. "EL112 (28)"; match on the code alone.
+        wanted = normalize_code(_GROUP_SUFFIX.sub("", sis_code))
         if not wanted:
             return None
         for enrollment in self._enrollments:
