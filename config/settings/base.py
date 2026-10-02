@@ -274,6 +274,9 @@ FERNET_KEY = env("TOKEN_ENCRYPTION_KEY", default="")
 MOODLE_BASE_URL = env("MOODLE_BASE_URL", default="https://egylms.arabou.edu.kw")
 MOODLE_SERVICE_NAME = env("MOODLE_SERVICE", default="moodle_mobile_app")
 MOODLE_HTTP_TIMEOUT_SECONDS = env.float("MOODLE_HTTP_TIMEOUT_SECONDS", default=10.0)
+# Optional egress proxy for Moodle calls; defaults to the SIS proxy (declared below it
+# is read from the same env var). Empty = direct connection.
+MOODLE_PROXY_URL = env.str("MOODLE_PROXY_URL", default=env.str("SIS_PROXY_URL", default=""))
 
 # --- SIS (AOU Egypt Student Information System) ---------------------------------
 # All values come from the environment (see .env.example); the app-level values are
@@ -284,6 +287,9 @@ SIS_APP_USERNAME = env("SIS_APP_USERNAME", default="")
 SIS_APP_PASSWORD = env("SIS_APP_PASSWORD", default="")
 SIS_BRANCH_ID = env.int("SIS_BRANCH_ID", default=5)
 SIS_HTTP_TIMEOUT_SECONDS = env.float("SIS_HTTP_TIMEOUT_SECONDS", default=10.0)
+# Optional egress proxy for every SIS call (e.g. an Egypt-based proxy, because the
+# server is hosted abroad). Empty = direct connection. Example: http://user:pass@host:port
+SIS_PROXY_URL = env.str("SIS_PROXY_URL", default="")
 
 # --- Reminders ---------------------------------------------------------------
 REMINDER_DISPATCH_BATCH_SIZE = env.int("REMINDER_DISPATCH_BATCH_SIZE", default=500)

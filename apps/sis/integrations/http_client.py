@@ -218,14 +218,21 @@ def _set_cookies(response: httpx.Response) -> tuple[tuple[str, str], ...]:
 
 
 class HttpSisClient:
-    def __init__(self, base_url: str, timeout: float = 10.0, attempts: int = 3) -> None:
+    def __init__(
+        self, base_url: str, timeout: float = 10.0, attempts: int = 3, proxy: str = ""
+    ) -> None:
         self._base_url = base_url.rstrip("/")
         self._timeout = timeout
         self._attempts = attempts
+        self._proxy = proxy or None  # never logged: it may hold credentials
 
     @classmethod
     def from_settings(cls) -> HttpSisClient:
-        return cls(base_url=settings.SIS_API_BASE_URL, timeout=settings.SIS_HTTP_TIMEOUT_SECONDS)
+        return cls(
+            base_url=settings.SIS_API_BASE_URL,
+            timeout=settings.SIS_HTTP_TIMEOUT_SECONDS,
+            proxy=settings.SIS_PROXY_URL,
+        )
 
     def _send(self, method: str, path: str, **kwargs: Any) -> httpx.Response:
         if not self._base_url:
@@ -234,6 +241,8 @@ class HttpSisClient:
         last_exc: Exception | None = None
         for _attempt in range(self._attempts):
             try:
+                if self._proxy:
+                    kwargs["proxy"] = self._proxy
                 response = httpx.request(method, url, timeout=self._timeout, **kwargs)
             except httpx.HTTPError as exc:
                 last_exc = exc
