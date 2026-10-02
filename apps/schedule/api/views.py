@@ -17,6 +17,7 @@ from apps.schedule.api.serializers import (
     ItemMuteSerializer,
     ItemRangeQuerySerializer,
     ItemSerializer,
+    ItemStatusNoteSerializer,
     ItemUpdateSerializer,
     LectureScheduleSerializer,
     LectureScheduleWriteSerializer,
@@ -112,6 +113,20 @@ class ItemMuteView(APIView):
             is_muted=serializer.validated_data["is_muted"],
             scheduler=container.reminder_scheduler(),
         )
+        return Response(item_payload(request.user, item_id))
+
+
+@extend_schema(tags=["items"])
+class ItemStatusNoteView(APIView):
+    @extend_schema(
+        summary="Set the student's status and/or note on an item (any type/source)",
+        request=ItemStatusNoteSerializer,
+        responses={200: ItemSerializer, **ERRORS_400_404},
+    )
+    def patch(self, request: Request, item_id: uuid.UUID) -> Response:
+        serializer = ItemStatusNoteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        item_services.set_item_status_note(request.user, item_id, **serializer.validated_data)
         return Response(item_payload(request.user, item_id))
 
 

@@ -12,6 +12,7 @@ from apps.schedule.models import (
     Course,
     Enrollment,
     Item,
+    ItemStatus,
     ItemType,
     LectureSchedule,
 )
@@ -55,6 +56,8 @@ class ItemSerializer(serializers.ModelSerializer):
             "ends_at",
             "location",
             "url",
+            "status",
+            "note",
             "is_muted",
             "is_editable",
             "reminders",
@@ -136,6 +139,19 @@ class ItemUpdateSerializer(serializers.Serializer):
 
 class ItemMuteSerializer(serializers.Serializer):
     is_muted = serializers.BooleanField()
+
+
+class ItemStatusNoteSerializer(serializers.Serializer):
+    """The student's personal status and/or note on an item (both optional)."""
+
+    status = serializers.ChoiceField(
+        choices=[*ItemStatus.choices, ("", "")],
+        required=False,
+        help_text="One of the item statuses, or empty string to clear it",
+    )
+    note = serializers.CharField(
+        max_length=2000, required=False, allow_blank=True, trim_whitespace=False
+    )
 
 
 class LectureScheduleSerializer(serializers.ModelSerializer):

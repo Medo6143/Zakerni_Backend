@@ -177,6 +177,47 @@ def test_mute_item(api, user) -> None:
     assert bad.status_code == 400
 
 
+def test_set_item_status_and_note(api, user) -> None:
+    item = MoodleQuizItemFactory(user=user)
+
+    response = api.patch(
+        f"/api/v1/items/{item.id}/status",
+        {"status": "attended", "note": "went well"},
+        format="json",
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "attended"
+    assert body["note"] == "went well"
+
+
+def test_set_item_status_invalid(api, user) -> None:
+    item = ItemFactory(user=user)
+
+    response = api.patch(f"/api/v1/items/{item.id}/status", {"status": "bogus"}, format="json")
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "validation_error"
+
+
+def test_set_item_status_other_user_is_404(api) -> None:
+    item = ItemFactory()
+
+    response = api.patch(f"/api/v1/items/{item.id}/status", {"status": "done"}, format="json")
+
+    assert response.status_code == 404
+
+
+def test_item_serializer_includes_status_and_note(api, user) -> None:
+    item = ItemFactory(user=user, status="done", note="finished")
+
+    body = api.get(f"/api/v1/items/{item.id}").json()
+
+    assert body["status"] == "done"
+    assert body["note"] == "finished"
+
+
 def test_lecture_crud(api, user) -> None:
     payload = {
         "title": "M110 lecture",

@@ -10,8 +10,15 @@ from typing import TYPE_CHECKING, Any
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.exceptions import ItemNotEditable, ValidationAppError
-from apps.schedule.models import MANUAL_CREATE_TYPES, Course, Item, ItemSource, ItemType
+from apps.core.exceptions import ItemNotEditable, NotFoundAppError, ValidationAppError
+from apps.schedule.models import (
+    MANUAL_CREATE_TYPES,
+    Course,
+    Item,
+    ItemSource,
+    ItemStatus,
+    ItemType,
+)
 from apps.schedule.selectors import is_enrolled
 
 if TYPE_CHECKING:
@@ -19,6 +26,8 @@ if TYPE_CHECKING:
     from apps.reminders.protocols import ReminderScheduler
 
 _UNSET: Any = object()
+
+NOTE_MAX_LENGTH = 2000
 
 
 def _resolve_course(user: User, course_id: uuid.UUID | None) -> Course | None:
@@ -124,6 +133,38 @@ def delete_manual_item(item: Item, *, scheduler: ReminderScheduler) -> None:
     item.deleted_at = timezone.now()
     item.save(update_fields=["deleted_at", "updated_at"])
     scheduler.cancel_for_item(item)
+
+
+def set_item_status_note(
+    user: User,
+    item_id: uuid.UUID,
+    *,
+    status: str | None = None,
+    note: str | None = None,
+) -> Item:
+    """Set the student's personal status and/or note on any of their own non-deleted
+    items (any type/source, including Moodle/SIS: it is a personal annotation, not an
+    edit of LMS data). Updates only the provided fields. Never touches reminders."""
+    item = Item.objects.filter(user=user, id=item_id, deleted_at__isnull=True).first()
+    if item is None:
+        raise NotFoundAppError()
+
+    update_fields: list[str] = []
+    if status is not None:
+        if status != "" and status not in ItemStatus.values:
+            raise ValidationAppError(details={"status": [str(_("Invalid status."))]})
+        item.status = status
+        update_fields.append("status")
+    if note is not None:
+        if len(note) > NOTE_MAX_LENGTH:
+            raise ValidationAppError(details={"note": [str(_("The note is too long."))]})
+        item.note = note
+        update_fields.append("note")
+
+    if update_fields:
+        update_fields.append("updated_at")
+        item.save(update_fields=update_fields)
+    return item
 
 
 def set_item_muted(item: Item, *, is_muted: bool, scheduler: ReminderScheduler) -> Item:

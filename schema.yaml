@@ -586,6 +586,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
           description: ''
+  /api/v1/items/{item_id}/status:
+    patch:
+      operationId: items_status_partial_update
+      summary: Set the student's status and/or note on an item (any type/source)
+      parameters:
+      - in: path
+        name: item_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - items
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedItemStatusNoteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedItemStatusNoteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedItemStatusNoteRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
   /api/v1/lectures:
     get:
       operationId: lectures_list
@@ -1300,6 +1345,9 @@ components:
       - min_supported_version
       - privacy_url
       - support_telegram
+    BlankEnum:
+      enum:
+      - ''
     Course:
       type: object
       description: An enrolled course. ``id`` is the course id; ``upcoming_count``
@@ -1526,6 +1574,13 @@ components:
           type: string
           format: uri
           readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ItemStatusEnum'
+          readOnly: true
+        note:
+          type: string
+          readOnly: true
         is_muted:
           type: boolean
           readOnly: true
@@ -1551,9 +1606,11 @@ components:
       - is_muted
       - lecture_schedule_id
       - location
+      - note
       - reminders
       - scheduled_at
       - source
+      - status
       - title
       - type
       - url
@@ -1640,6 +1697,20 @@ components:
         * `moodle` - Moodle
         * `manual` - Manual
         * `sis` - SIS
+    ItemStatusEnum:
+      enum:
+      - planned
+      - attended
+      - postponed
+      - cancelled
+      - done
+      type: string
+      description: |-
+        * `planned` - Planned
+        * `attended` - Attended
+        * `postponed` - Postponed
+        * `cancelled` - Cancelled
+        * `done` - Done
     ItemTypeEnum:
       enum:
       - quiz
@@ -1931,6 +2002,20 @@ components:
       properties:
         is_muted:
           type: boolean
+    PatchedItemStatusNoteRequest:
+      type: object
+      description: The student's personal status and/or note on an item (both optional).
+      properties:
+        status:
+          description: "One of the item statuses, or empty string to clear it\n\n\
+            * `planned` - Planned\n* `attended` - Attended\n* `postponed` - Postponed\n\
+            * `cancelled` - Cancelled\n* `done` - Done\n* `` - "
+          oneOf:
+          - $ref: '#/components/schemas/ItemStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        note:
+          type: string
+          maxLength: 2000
     PatchedItemUpdateRequest:
       type: object
       properties:

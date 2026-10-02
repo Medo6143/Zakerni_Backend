@@ -183,6 +183,7 @@ SPECTACULAR_SETTINGS = {
     "ENUM_NAME_OVERRIDES": {
         "ItemTypeEnum": "apps.schedule.models.ItemType",
         "ItemSourceEnum": "apps.schedule.models.ItemSource",
+        "ItemStatusEnum": "apps.schedule.models.ItemStatus",
         "ReportStatusEnum": "apps.support.models.Report.Status",
         "ReportCategoryEnum": "apps.support.models.Report.Category",
         "NotificationKindEnum": "apps.notifications.models.Notification.Kind",

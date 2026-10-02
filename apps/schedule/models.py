@@ -29,6 +29,19 @@ class ItemSource(models.TextChoices):
     SIS = "sis", _("SIS")
 
 
+class ItemStatus(models.TextChoices):
+    """The student's personal status on an item (independent of reminders).
+
+    Empty string means unset (same as ``planned``). Adding a status = new value
+    here + a meta entry in the mobile ``itemStatusMeta`` registry. No ``if`` chains."""
+
+    PLANNED = "planned", _("Planned")
+    ATTENDED = "attended", _("Attended")
+    POSTPONED = "postponed", _("Postponed")
+    CANCELLED = "cancelled", _("Cancelled")
+    DONE = "done", _("Done")
+
+
 MANUAL_ITEM_TYPES = (ItemType.QUIZ, ItemType.EXAM, ItemType.LECTURE)
 # Types a student creates directly through ``/items`` (lectures go through ``/lectures``).
 MANUAL_CREATE_TYPES = (ItemType.QUIZ, ItemType.EXAM)
@@ -162,6 +175,11 @@ class Item(UUIDModel, TimeStampedModel):
     )
     title = models.CharField(_("title"), max_length=255)
     description = models.TextField(_("description"), blank=True)
+    # The student's own status/note on the item (any type/source). Independent of reminders.
+    status = models.CharField(
+        _("status"), max_length=16, choices=ItemStatus.choices, blank=True, default=""
+    )
+    note = models.TextField(_("note"), blank=True, default="")
     location = models.CharField(_("location"), max_length=255, blank=True)
     url = models.URLField(_("url"), max_length=500, blank=True)
     available_from = models.DateTimeField(_("available from"), null=True, blank=True)

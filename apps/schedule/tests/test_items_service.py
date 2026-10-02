@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from freezegun import freeze_time
 
-from apps.core.exceptions import ItemNotEditable, ValidationAppError
+from apps.core.exceptions import ItemNotEditable, NotFoundAppError, ValidationAppError
 from apps.notifications.tests.factories import DeviceFactory
 from apps.reminders.models import ScheduledReminder
 from apps.schedule.services import courses as course_services
@@ -190,6 +190,78 @@ def test_create_manual_item_rejects_lecture_and_tma(user, scheduler) -> None:
                 scheduled_at=NOW + timedelta(days=5),
                 scheduler=scheduler,
             )
+
+
+class _RecordingScheduler:
+    def __init__(self) -> None:
+        self.calls: list[str] = []
+
+    def schedule_for_item(self, item) -> None:  # type: ignore[no-untyped-def]
+        self.calls.append("schedule")
+
+    def cancel_for_item(self, item) -> None:  # type: ignore[no-untyped-def]
+        self.calls.append("cancel")
+
+    def reschedule_for_user(self, user, **kwargs) -> int:  # type: ignore[no-untyped-def]
+        self.calls.append("reschedule")
+        return 0
+
+
+def test_set_item_status(user) -> None:
+    item = ItemFactory(user=user)
+
+    updated = item_services.set_item_status_note(user, item.id, status="attended")
+
+    item.refresh_from_db()
+    assert updated.status == "attended"
+    assert item.status == "attended"
+
+
+def test_set_item_note(user) -> None:
+    item = ItemFactory(user=user)
+
+    item_services.set_item_status_note(user, item.id, note="bring calculator")
+
+    item.refresh_from_db()
+    assert item.note == "bring calculator"
+    assert item.status == ""  # untouched
+
+
+def test_set_item_status_rejects_invalid(user) -> None:
+    item = ItemFactory(user=user)
+
+    with pytest.raises(ValidationAppError) as exc:
+        item_services.set_item_status_note(user, item.id, status="bogus")
+    assert "status" in exc.value.details
+
+
+def test_set_status_on_moodle_item(user) -> None:
+    item = MoodleQuizItemFactory(user=user)
+
+    item_services.set_item_status_note(user, item.id, status="done", note="submitted")
+
+    item.refresh_from_db()
+    assert (item.status, item.note) == ("done", "submitted")
+
+
+def test_set_status_unknown_item_is_404(user) -> None:
+    with pytest.raises(NotFoundAppError):
+        item_services.set_item_status_note(user, ItemFactory().id, status="done")
+
+
+def test_set_status_does_not_reschedule(user, scheduler) -> None:
+    DeviceFactory(user=user)
+    item = MoodleQuizItemFactory(user=user)
+    scheduler.schedule_for_item(item)
+    before = _pending(item)
+    assert before  # has pending reminders
+    recording = _RecordingScheduler()
+
+    item_services.set_item_status_note(user, item.id, status="cancelled")
+
+    # The service takes no scheduler and cannot call one; reminders are untouched.
+    assert recording.calls == []
+    assert _pending(item) == before
 
 
 def test_update_manual_quiz_available_from(user, scheduler) -> None:
