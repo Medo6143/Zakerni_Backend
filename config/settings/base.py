@@ -280,13 +280,6 @@ MOODLE_BASE_URL = env("MOODLE_BASE_URL", default="https://egylms.arabou.edu.kw")
 MOODLE_SERVICE_NAME = env("MOODLE_SERVICE", default="moodle_mobile_app")
 MOODLE_HTTP_TIMEOUT_SECONDS = env.float("MOODLE_HTTP_TIMEOUT_SECONDS", default=10.0)
 
-# "device": the student's phone talks to Moodle and pushes the data to the ingest endpoints
-# (the token stays on the phone; Moodle blocks the server's IPs). "server": the backend logs
-# in to Moodle itself (``POST /auth/login``) and ``POST /auth/device-login`` answers 404.
-LMS_FETCH_MODE = env.str("LMS_FETCH_MODE", default="device").strip().lower()
-# Server-side key for the HMAC of device secrets. Changing it unbinds every device.
-DEVICE_SECRET_KEY = env.str("DEVICE_SECRET_KEY", default="") or SECRET_KEY
-
 # --- SIS (AOU Egypt Student Information System) ---------------------------------
 # All values come from the environment (see .env.example); the app-level values are
 # the public web client's configuration and are never hard-coded here.

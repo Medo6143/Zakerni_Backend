@@ -75,10 +75,22 @@ class ThrottledAppError(ApplicationError):
     message = _("Too many requests. Please try again later.")
 
 
-class DeviceMismatch(ApplicationError):
-    code = "device_mismatch"
-    status = 403
-    message = _("This account is linked to another device. Contact support to reset it.")
+class UsernameTaken(ApplicationError):
+    code = "username_taken"
+    status = 409
+    message = _("This student number is already registered. Sign in instead.")
+
+
+class InvalidCredentials(ApplicationError):
+    code = "invalid_credentials"
+    status = 401
+    message = _("Incorrect student number or password.")
+
+
+class TooManyAttempts(ApplicationError):
+    code = "too_many_attempts"
+    status = 429
+    message = _("Too many failed attempts. Please try again later.")
 
 
 class SisInvalidCredentials(ApplicationError):

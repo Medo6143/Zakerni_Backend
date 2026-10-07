@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from unfold.admin import ModelAdmin
 
 from apps.accounts.models import User
-from apps.accounts.services.device_auth import reset_device_binding
+from apps.accounts.services.app_auth import set_temporary_password
 from apps.moodle.models import MoodleAccount
 from apps.notifications.models import TelegramLink
 
@@ -50,7 +50,7 @@ class UserAdmin(DjangoUserAdmin, ModelAdmin):
         ),
     )
     readonly_fields = ("date_joined", "reminder_defaults_confirmed_at")
-    actions = ["reset_device_binding"]
+    actions = ["set_temporary_password"]
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[User]:
         return (
@@ -75,18 +75,18 @@ class UserAdmin(DjangoUserAdmin, ModelAdmin):
     def active_devices(self, obj: User) -> int:
         return int(getattr(obj, "active_devices_count", 0))
 
-    @admin.action(description=_("Reset device binding"))
-    def reset_device_binding(self, request: HttpRequest, queryset: QuerySet[User]) -> None:
-        """Lets a student who reinstalled the app claim the account from a new device."""
-        count = 0
+    @admin.action(description=_("Set a temporary password"))
+    def set_temporary_password(self, request: HttpRequest, queryset: QuerySet[User]) -> None:
+        """Recovery for a student who lost the password (no forgot-password flow yet).
+        The generated password is shown once, in the admin message."""
         for user in queryset:
-            reset_device_binding(user)
-            count += 1
-        self.message_user(
-            request,
-            _("Device binding reset for %(count)d user(s).") % {"count": count},
-            messages.SUCCESS,
-        )
+            password = set_temporary_password(user)
+            self.message_user(
+                request,
+                _("Temporary password for %(user)s: %(password)s (shown once)")
+                % {"user": user.moodle_username, "password": password},
+                messages.SUCCESS,
+            )
 
     @admin.display(boolean=True, description=_("Telegram"))
     def telegram_linked(self, obj: User) -> bool:

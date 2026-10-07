@@ -9,14 +9,18 @@ from rest_framework.views import APIView
 
 from apps.core.api.serializers import ERRORS_400, ErrorEnvelopeSerializer
 from apps.core.api.throttling import LmsIngestDailyThrottle, LmsIngestThrottle, LmsSyncThrottle
-from apps.core.exceptions import NotFoundAppError
 from apps.moodle.api.ingest_serializers import (
     LmsIngestResultSerializer,
     LmsIngestSerializer,
     build_ingest_data,
 )
-from apps.moodle.api.serializers import LmsStatusSerializer
+from apps.moodle.api.serializers import (
+    LmsConnectSerializer,
+    LmsStatusSerializer,
+    not_connected_payload,
+)
 from apps.moodle.selectors import moodle_account_for_user
+from apps.moodle.services.connection import LmsConnectData, connect_lms, disconnect_lms
 from apps.moodle.services.ingest import ingest_lms_data
 from apps.moodle.services.lms import request_lms_sync
 
@@ -31,12 +35,41 @@ def _enqueue(account_id: uuid.UUID, countdown: int) -> None:
 class LmsStatusView(APIView):
     @extend_schema(
         summary="LMS connection and last sync status",
-        responses={200: LmsStatusSerializer, 404: ErrorEnvelopeSerializer},
+        description='Always 200: "connected": false and status "not_connected" when the '
+        "student has not connected the university.",
+        responses={200: LmsStatusSerializer},
     )
     def get(self, request: Request) -> Response:
         account = moodle_account_for_user(request.user.pk)
         if account is None:
-            raise NotFoundAppError()
+            return Response(not_connected_payload())
+        return Response(LmsStatusSerializer(account).data)
+
+    @extend_schema(
+        summary="Disconnect the university: remove Moodle items and the link",
+        description="Deletes the Moodle link, soft-deletes Moodle-sourced items (their "
+        "reminders are cancelled) and deactivates enrollments. Manual items, lectures and "
+        "SIS data are kept.",
+        responses={204: None},
+    )
+    def delete(self, request: Request) -> Response:
+        from config import container
+
+        disconnect_lms(request.user, scheduler=container.reminder_scheduler())
+        return Response(status=204)
+
+
+@extend_schema(tags=["me"])
+class LmsConnectView(APIView):
+    @extend_schema(
+        summary="Connect the university LMS (no token or password is sent)",
+        request=LmsConnectSerializer,
+        responses={200: LmsStatusSerializer, 401: ErrorEnvelopeSerializer, **ERRORS_400},
+    )
+    def post(self, request: Request) -> Response:
+        serializer = LmsConnectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        account = connect_lms(request.user, LmsConnectData(**serializer.validated_data))
         return Response(LmsStatusSerializer(account).data)
 
 

@@ -40,7 +40,7 @@ class PayloadMoodleClient:
             raise LmsTokenExpired()
 
     def site_info(self, token: str) -> SiteInfo:
-        raise NotImplementedError("the phone reads site info itself (device-login)")
+        raise NotImplementedError("the phone reads site info itself (lms connect)")
 
     def courses(self, token: str, moodle_user_id: int) -> list[MoodleCourse]:
         self._check()

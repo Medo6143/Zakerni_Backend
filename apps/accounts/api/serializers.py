@@ -6,6 +6,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.accounts.models import User
+from apps.accounts.services.app_auth import USERNAME_RE, normalize_username
 from apps.core.api.ingest_fields import SafeCharField
 from apps.notifications.selectors import is_telegram_linked
 
@@ -15,13 +16,26 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, trim_whitespace=False)
 
 
-class DeviceLoginSerializer(serializers.Serializer):
+class RegisterSerializer(serializers.Serializer):
+    username = SafeCharField(min_length=3, max_length=32)
+    password = SafeCharField(write_only=True, trim_whitespace=False, max_length=128)
+    language = serializers.ChoiceField(choices=User.Language.choices, required=False)
+
+    def validate_username(self, value: str) -> str:
+        value = normalize_username(value)
+        if not USERNAME_RE.match(value):
+            raise serializers.ValidationError(_("Use 3 to 32 letters or digits."))
+        return value
+
+
+class SignInSerializer(serializers.Serializer):
     username = SafeCharField(max_length=150)
-    full_name = SafeCharField(max_length=255, allow_blank=True, default="")
-    email = serializers.EmailField(max_length=254, allow_blank=True, default="")
-    moodle_user_id = serializers.IntegerField(min_value=1, max_value=2**31 - 1)
-    site_url = serializers.URLField(max_length=200)
-    device_secret = SafeCharField(min_length=32, max_length=256, trim_whitespace=False)
+    password = SafeCharField(write_only=True, trim_whitespace=False, max_length=128)
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = SafeCharField(write_only=True, trim_whitespace=False, max_length=128)
+    new_password = SafeCharField(write_only=True, trim_whitespace=False, max_length=128)
 
 
 class RefreshSerializer(serializers.Serializer):
@@ -91,7 +105,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 
 def build_login_payload(user: User, *, is_new: bool) -> dict:
-    """The JSON body shared by ``/auth/login`` and ``/auth/device-login``."""
+    """The JSON body shared by login, register and sign-in."""
     refresh = RefreshToken.for_user(user)
     return {
         "access": str(refresh.access_token),

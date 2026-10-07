@@ -1017,10 +1017,6 @@ msgid "SIS"
 msgstr "SIS"
 
 #: device-mode
-msgid "This account is linked to another device. Contact support to reset it."
-msgstr "This account is linked to another device. Contact support to reset it."
-
-#: device-mode
 msgid "Invalid characters."
 msgstr "Invalid characters."
 
@@ -1036,10 +1032,30 @@ msgstr "Send at least one data list or lms_status."
 msgid "Courses are required with items."
 msgstr "Courses are required with items."
 
-#: device-mode
-msgid "Reset device binding"
-msgstr "Reset device binding"
+#: apps\accounts
+msgid "This student number is already registered. Sign in instead."
+msgstr "This student number is already registered. Sign in instead."
 
-#: device-mode
-msgid "Device binding reset for %(count)d user(s)."
-msgstr "Device binding reset for %(count)d user(s)."
+#: apps\accounts
+msgid "Incorrect student number or password."
+msgstr "Incorrect student number or password."
+
+#: apps\accounts
+msgid "Too many failed attempts. Please try again later."
+msgstr "Too many failed attempts. Please try again later."
+
+#: apps\accounts
+msgid "Use 3 to 32 letters or digits."
+msgstr "Use 3 to 32 letters or digits."
+
+#: apps\accounts
+msgid "Incorrect password."
+msgstr "Incorrect password."
+
+#: apps\accounts
+msgid "Set a temporary password"
+msgstr "Set a temporary password"
+
+#: apps\accounts
+msgid "Temporary password for %(user)s: %(password)s (shown once)"
+msgstr "Temporary password for %(user)s: %(password)s (shown once)"

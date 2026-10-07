@@ -7,45 +7,33 @@ info:
 
     **Real-time report chat (WebSocket, not described by OpenAPI).** Connect to `ws://<host>/ws/v1/reports/<report_id>/?token=<JWT access token>` (admin pages use the session cookie instead). Only the report owner or staff may join: close code `4401` = missing/invalid/expired token, `4403` = not allowed. Send `{"type": "message", "body": "<text>"}`; everyone in the thread receives `{"type": "reply.created", "reply": <ReportReply>}` (same shape as in `GET /reports/{id}`), also for replies posted through REST or the admin. Validation problems come back as `{"type": "error", "error": {"code", "message", "details"}}`. See docs/05-api-spec.md.
 paths:
-  /api/v1/auth/device-login:
+  /api/v1/auth/change-password:
     post:
-      operationId: auth_device_login_create
-      summary: 'Device-bound login (device mode): the phone read Moodle itself; the
-        account is bound to a device secret. 404 unless LMS_FETCH_MODE=device'
+      operationId: auth_change_password_create
+      summary: Change the app password (existing refresh tokens are blacklisted; a
+        fresh token pair is returned)
       tags:
       - auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeviceLoginRequest'
+              $ref: '#/components/schemas/ChangePasswordRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/DeviceLoginRequest'
+              $ref: '#/components/schemas/ChangePasswordRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/DeviceLoginRequest'
+              $ref: '#/components/schemas/ChangePasswordRequest'
         required: true
       security:
-      - {}
+      - jwtAuth: []
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorEnvelope'
-          description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorEnvelope'
+                $ref: '#/components/schemas/TokenPair'
           description: ''
         '429':
           content:
@@ -165,6 +153,97 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenPair'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/auth/register:
+    post:
+      operationId: auth_register_create
+      summary: Create an app account (student number + app password)
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/auth/signin:
+    post:
+      operationId: auth_signin_create
+      summary: Sign in with the app account (10 failures per username in 15 minutes
+        lock it out)
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignInRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignInRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
           description: ''
         '400':
           content:
@@ -916,6 +995,8 @@ paths:
   /api/v1/me/lms:
     get:
       operationId: me_lms_retrieve
+      description: 'Always 200: "connected": false and status "not_connected" when
+        the student has not connected the university.'
       summary: LMS connection and last sync status
       tags:
       - me
@@ -928,7 +1009,53 @@ paths:
               schema:
                 $ref: '#/components/schemas/LmsStatus'
           description: ''
-        '404':
+    delete:
+      operationId: me_lms_destroy
+      description: Deletes the Moodle link, soft-deletes Moodle-sourced items (their
+        reminders are cancelled) and deactivates enrollments. Manual items, lectures
+        and SIS data are kept.
+      summary: 'Disconnect the university: remove Moodle items and the link'
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/me/lms/connect:
+    post:
+      operationId: me_lms_connect_create
+      summary: Connect the university LMS (no token or password is sent)
+      tags:
+      - me
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LmsConnectRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LmsConnectRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LmsConnectRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LmsStatus'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '400':
           content:
             application/json:
               schema:
@@ -1561,6 +1688,22 @@ components:
     BlankEnum:
       enum:
       - ''
+    ChangePasswordRequest:
+      type: object
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 128
+        new_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 128
+      required:
+      - new_password
+      - old_password
     Course:
       type: object
       description: An enrolled course. ``id`` is the course id; ``upcoming_count``
@@ -1677,40 +1820,6 @@ components:
       - model
       - os_version
       - platform
-    DeviceLoginRequest:
-      type: object
-      properties:
-        username:
-          type: string
-          minLength: 1
-          maxLength: 150
-        full_name:
-          type: string
-          default: ''
-          maxLength: 255
-        email:
-          type: string
-          format: email
-          default: ''
-          maxLength: 254
-        moodle_user_id:
-          type: integer
-          maximum: 2147483647
-          minimum: 1
-        site_url:
-          type: string
-          format: uri
-          minLength: 1
-          maxLength: 200
-        device_secret:
-          type: string
-          minLength: 32
-          maxLength: 256
-      required:
-      - device_secret
-      - moodle_user_id
-      - site_url
-      - username
     DevicePlatformEnum:
       enum:
       - android
@@ -2287,6 +2396,35 @@ components:
       - starts_on
       - title
       - weekdays
+    LmsConnectRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 150
+        moodle_user_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        full_name:
+          type: string
+          default: ''
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          default: ''
+          maxLength: 254
+        site_url:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 200
+      required:
+      - moodle_user_id
+      - site_url
+      - username
     LmsIngestRequest:
       type: object
       properties:
@@ -2348,10 +2486,11 @@ components:
       type: object
       description: 'Never includes the token (hard rule #2).'
       properties:
-        status:
-          allOf:
-          - $ref: '#/components/schemas/LmsStatusEnum'
+        connected:
+          type: boolean
           readOnly: true
+        status:
+          $ref: '#/components/schemas/LmsStatusStatusEnum'
         last_synced_at:
           type: string
           format: date-time
@@ -2361,6 +2500,7 @@ components:
           type: string
           readOnly: true
       required:
+      - connected
       - last_sync_error
       - last_synced_at
       - status
@@ -2369,6 +2509,18 @@ components:
       - expired
       type: string
       description: '* `expired` - expired'
+    LmsStatusStatusEnum:
+      enum:
+      - active
+      - expired
+      - disabled
+      - not_connected
+      type: string
+      description: |-
+        * `active` - Active
+        * `expired` - Expired
+        * `disabled` - Disabled
+        * `not_connected` - Not connected
     LoginRequest:
       type: object
       properties:
@@ -2625,6 +2777,23 @@ components:
           minLength: 1
       required:
       - refresh
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 32
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 128
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+      required:
+      - password
+      - username
     ReminderRule:
       type: object
       properties:
@@ -2809,6 +2978,21 @@ components:
         * `in_progress` - In progress
         * `resolved` - Resolved
         * `closed` - Closed
+    SignInRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 128
+      required:
+      - password
+      - username
     SisConnectRequest:
       type: object
       properties:

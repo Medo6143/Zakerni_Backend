@@ -9,19 +9,21 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.accounts.api.serializers import (
-    DeviceLoginSerializer,
+    ChangePasswordSerializer,
     LoginResponseSerializer,
     LoginSerializer,
     LogoutSerializer,
     RefreshSerializer,
+    RegisterSerializer,
+    SignInSerializer,
     TokenPairSerializer,
     UserSerializer,
     UserUpdateSerializer,
     build_login_payload,
 )
 from apps.accounts.api.throttling import LoginRateThrottle
+from apps.accounts.services.app_auth import change_password, register_user, sign_in
 from apps.accounts.services.auth import LoginWithLms
-from apps.accounts.services.device_auth import DeviceLoginData, login_with_device
 from apps.accounts.services.profile import delete_account, update_profile
 from apps.core.api.serializers import ERRORS_400, ErrorEnvelopeSerializer
 from apps.core.exceptions import ValidationAppError
@@ -65,29 +67,71 @@ class LoginView(APIView):
 
 
 @extend_schema(tags=["auth"])
-class DeviceLoginView(APIView):
+class RegisterView(APIView):
     permission_classes = [AllowAny]
     authentication_classes: list = []
     throttle_classes = [LoginRateThrottle]
     throttle_scope = "login"
 
     @extend_schema(
-        summary="Device-bound login (device mode): the phone read Moodle itself; the "
-        "account is bound to a device secret. 404 unless LMS_FETCH_MODE=device",
-        request=DeviceLoginSerializer,
+        summary="Create an app account (student number + app password)",
+        request=RegisterSerializer,
         responses={
-            200: LoginResponseSerializer,
-            403: ErrorEnvelopeSerializer,
-            404: ErrorEnvelopeSerializer,
+            201: LoginResponseSerializer,
+            409: ErrorEnvelopeSerializer,
             429: ErrorEnvelopeSerializer,
             **ERRORS_400,
         },
     )
     def post(self, request: Request) -> Response:
-        serializer = DeviceLoginSerializer(data=request.data)
+        serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        result = login_with_device(DeviceLoginData(**serializer.validated_data))
-        return Response(build_login_payload(result.user, is_new=result.is_new), status=200)
+        user = register_user(**serializer.validated_data)
+        return Response(build_login_payload(user, is_new=True), status=201)
+
+
+@extend_schema(tags=["auth"])
+class SignInView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes: list = []
+    throttle_classes = [LoginRateThrottle]
+    throttle_scope = "login"
+
+    @extend_schema(
+        summary="Sign in with the app account (10 failures per username in 15 minutes "
+        "lock it out)",
+        request=SignInSerializer,
+        responses={
+            200: LoginResponseSerializer,
+            401: ErrorEnvelopeSerializer,
+            429: ErrorEnvelopeSerializer,
+            **ERRORS_400,
+        },
+    )
+    def post(self, request: Request) -> Response:
+        serializer = SignInSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = sign_in(**serializer.validated_data)
+        return Response(build_login_payload(user, is_new=False))
+
+
+@extend_schema(tags=["auth"])
+class ChangePasswordView(APIView):
+    throttle_classes = [LoginRateThrottle]
+    throttle_scope = "login"
+
+    @extend_schema(
+        summary="Change the app password (existing refresh tokens are blacklisted; a "
+        "fresh token pair is returned)",
+        request=ChangePasswordSerializer,
+        responses={200: TokenPairSerializer, 429: ErrorEnvelopeSerializer, **ERRORS_400},
+    )
+    def post(self, request: Request) -> Response:
+        serializer = ChangePasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        change_password(request.user, **serializer.validated_data)
+        refresh = RefreshToken.for_user(request.user)
+        return Response({"access": str(refresh.access_token), "refresh": str(refresh)})
 
 
 @extend_schema(tags=["auth"])

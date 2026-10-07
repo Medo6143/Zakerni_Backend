@@ -32,9 +32,9 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin, UUIDModel):
     """Zakerni student (or staff) account.
 
-    Students authenticate with their AOU Moodle credentials; the LMS
-    password itself is never stored (see ``login_with_lms``). ``password``
-    on this model is only ever usable for Django admin/staff accounts.
+    Students have their own app account (``moodle_username`` holds the student number,
+    ``password`` is a hashed app password). Legacy accounts created by the server-side
+    LMS login have an unusable password. Connecting the LMS is optional (``MoodleAccount``).
     """
 
     class Language(models.TextChoices):
@@ -53,11 +53,6 @@ class User(AbstractBaseUser, PermissionsMixin, UUIDModel):
     reminder_defaults_confirmed_at = models.DateTimeField(
         _("reminder defaults confirmed at"), null=True, blank=True
     )
-
-    # HMAC-SHA256 hex of the device secret that claimed this account (device login).
-    # Empty = unclaimed. Never exposed by any API or the admin.
-    device_secret_hash = models.CharField(max_length=64, blank=True, default="")
-    device_bound_at = models.DateTimeField(null=True, blank=True)
 
     objects = UserManager()
 

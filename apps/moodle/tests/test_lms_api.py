@@ -20,16 +20,13 @@ def test_get_lms_status(api, user) -> None:
     response = api.get("/api/v1/me/lms")
 
     assert response.status_code == 200
-    assert response.json() == {"status": "active", "last_synced_at": None, "last_sync_error": ""}
+    assert response.json() == {
+        "connected": True,
+        "status": "active",
+        "last_synced_at": None,
+        "last_sync_error": "",
+    }
     assert "token" not in str(response.json())
-
-
-@pytest.mark.django_db
-def test_get_lms_status_without_account_is_404(api) -> None:
-    response = api.get("/api/v1/me/lms")
-
-    assert response.status_code == 404
-    assert response.json()["error"]["code"] == "not_found"
 
 
 @pytest.mark.django_db

@@ -1017,10 +1017,6 @@ msgid "SIS"
 msgstr "شؤون الطلاب"
 
 #: device-mode
-msgid "This account is linked to another device. Contact support to reset it."
-msgstr "هذا الحساب مرتبط بجهاز آخر. تواصل مع الدعم لإعادة التعيين."
-
-#: device-mode
 msgid "Invalid characters."
 msgstr "أحرف غير صالحة."
 
@@ -1036,10 +1032,30 @@ msgstr "أرسل قائمة بيانات واحدة على الأقل أو lms_s
 msgid "Courses are required with items."
 msgstr "المقررات مطلوبة عند إرسال العناصر."
 
-#: device-mode
-msgid "Reset device binding"
-msgstr "إعادة تعيين ربط الجهاز"
+#: apps\accounts
+msgid "This student number is already registered. Sign in instead."
+msgstr "رقم الطالب هذا مسجل بالفعل. سجّل الدخول بدلاً من ذلك."
 
-#: device-mode
-msgid "Device binding reset for %(count)d user(s)."
-msgstr "تمت إعادة تعيين ربط الجهاز لعدد %(count)d مستخدم."
+#: apps\accounts
+msgid "Incorrect student number or password."
+msgstr "رقم الطالب أو كلمة المرور غير صحيحة."
+
+#: apps\accounts
+msgid "Too many failed attempts. Please try again later."
+msgstr "محاولات فاشلة كثيرة. حاول مرة أخرى لاحقاً."
+
+#: apps\accounts
+msgid "Use 3 to 32 letters or digits."
+msgstr "استخدم من 3 إلى 32 حرفاً أو رقماً."
+
+#: apps\accounts
+msgid "Incorrect password."
+msgstr "كلمة المرور غير صحيحة."
+
+#: apps\accounts
+msgid "Set a temporary password"
+msgstr "تعيين كلمة مرور مؤقتة"
+
+#: apps\accounts
+msgid "Temporary password for %(user)s: %(password)s (shown once)"
+msgstr "كلمة المرور المؤقتة للمستخدم %(user)s: %(password)s (تظهر مرة واحدة)"
