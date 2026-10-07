@@ -80,6 +80,27 @@ def sync_moodle_account() -> SyncMoodleAccount:
     )
 
 
+def sync_moodle_account_with(client: MoodleDataClient) -> SyncMoodleAccount:
+    """The Moodle sync over an already-fetched payload (device mode): same service,
+    different client."""
+    channels = notification_channels()
+    return SyncMoodleAccount(
+        client=client,
+        scheduler=ReminderSchedulingService(channels=channels),
+        channels=channels,
+    )
+
+
+def sync_sis_account_with(client: SisClient) -> SyncSisAccount:
+    """The SIS sync over an already-fetched schedule (device mode)."""
+    channels = notification_channels()
+    return SyncSisAccount(
+        client=client,
+        scheduler=ReminderSchedulingService(channels=channels),
+        channels=channels,
+    )
+
+
 def sync_sis_account() -> SyncSisAccount:
     channels = notification_channels()
     return SyncSisAccount(

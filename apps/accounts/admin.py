@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.db.models import Count, Exists, OuterRef, Q, QuerySet
 from django.http import HttpRequest
@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from unfold.admin import ModelAdmin
 
 from apps.accounts.models import User
+from apps.accounts.services.device_auth import reset_device_binding
 from apps.moodle.models import MoodleAccount
 from apps.notifications.models import TelegramLink
 
@@ -49,6 +50,7 @@ class UserAdmin(DjangoUserAdmin, ModelAdmin):
         ),
     )
     readonly_fields = ("date_joined", "reminder_defaults_confirmed_at")
+    actions = ["reset_device_binding"]
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[User]:
         return (
@@ -72,6 +74,19 @@ class UserAdmin(DjangoUserAdmin, ModelAdmin):
     @admin.display(description=_("active devices"))
     def active_devices(self, obj: User) -> int:
         return int(getattr(obj, "active_devices_count", 0))
+
+    @admin.action(description=_("Reset device binding"))
+    def reset_device_binding(self, request: HttpRequest, queryset: QuerySet[User]) -> None:
+        """Lets a student who reinstalled the app claim the account from a new device."""
+        count = 0
+        for user in queryset:
+            reset_device_binding(user)
+            count += 1
+        self.message_user(
+            request,
+            _("Device binding reset for %(count)d user(s).") % {"count": count},
+            messages.SUCCESS,
+        )
 
     @admin.display(boolean=True, description=_("Telegram"))
     def telegram_linked(self, obj: User) -> bool:

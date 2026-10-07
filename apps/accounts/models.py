@@ -54,6 +54,11 @@ class User(AbstractBaseUser, PermissionsMixin, UUIDModel):
         _("reminder defaults confirmed at"), null=True, blank=True
     )
 
+    # HMAC-SHA256 hex of the device secret that claimed this account (device login).
+    # Empty = unclaimed. Never exposed by any API or the admin.
+    device_secret_hash = models.CharField(max_length=64, blank=True, default="")
+    device_bound_at = models.DateTimeField(null=True, blank=True)
+
     objects = UserManager()
 
     USERNAME_FIELD = "moodle_username"

@@ -39,6 +39,8 @@ celery -A config worker -l info
 celery -A config beat -l info
 ```
 
+Device mode (`LMS_FETCH_MODE=device`): accounts without a stored Moodle token (or SIS password) are skipped by the periodic syncs; their data arrives through `POST /me/lms/ingest` and `POST /me/sis/ingest`. A student who reinstalled the app is unbound with the "Reset device binding" action in the admin user list.
+
 Beat schedule (`config/settings/base.py`):
 
 | Task | Schedule |
@@ -116,6 +118,9 @@ Variables (`config.settings.prod`):
 | `CLOUDINARY_URL` | strongly recommended | report attachments; Railway disks are ephemeral, so without it uploads are lost on redeploy |
 | `CORS_ALLOWED_ORIGINS` | optional | the mobile app needs none |
 | `MOODLE_BASE_URL`, `MOODLE_SERVICE` | optional | defaults to AOU Egypt |
+| `LMS_FETCH_MODE` | optional | `device` (default): the phone talks to Moodle and posts data to `POST /me/lms/ingest`, the server never calls Moodle and stores no Moodle token; `server`: the backend logs in to Moodle itself (`POST /auth/device-login` then answers 404) |
+| `DEVICE_SECRET_KEY` | optional | key for the HMAC of device secrets; defaults to `DJANGO_SECRET_KEY`. Changing it unbinds every device |
+| `SIS_INGEST_ENABLED` | optional | `false` by default; enables `POST /me/sis/ingest` (404 otherwise) |
 | `SIS_API_BASE_URL`, `SIS_APP_USER_ID`, `SIS_APP_USERNAME`, `SIS_APP_PASSWORD`, `SIS_BRANCH_ID` | yes for SIS | see `.env.example` |
 | `APP_MIN_SUPPORTED_VERSION`, `APP_LATEST_VERSION`, `APP_PRIVACY_URL`, `APP_SUPPORT_TELEGRAM` | optional | `GET /meta/app` |
 | `SECURE_SSL_REDIRECT`, `SECURE_HSTS_SECONDS`, `SECURE_HSTS_INCLUDE_SUBDOMAINS`, `SECURE_HSTS_PRELOAD` | optional | defaults: true, 30 days, false, false (subdomains/preload only on your own domain) |

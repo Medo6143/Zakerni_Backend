@@ -7,6 +7,58 @@ info:
 
     **Real-time report chat (WebSocket, not described by OpenAPI).** Connect to `ws://<host>/ws/v1/reports/<report_id>/?token=<JWT access token>` (admin pages use the session cookie instead). Only the report owner or staff may join: close code `4401` = missing/invalid/expired token, `4403` = not allowed. Send `{"type": "message", "body": "<text>"}`; everyone in the thread receives `{"type": "reply.created", "reply": <ReportReply>}` (same shape as in `GET /reports/{id}`), also for replies posted through REST or the admin. Validation problems come back as `{"type": "error", "error": {"code", "message", "details"}}`. See docs/05-api-spec.md.
 paths:
+  /api/v1/auth/device-login:
+    post:
+      operationId: auth_device_login_create
+      summary: 'Device-bound login (device mode): the phone read Moodle itself; the
+        account is bound to a device secret. 404 unless LMS_FETCH_MODE=device'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceLoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeviceLoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeviceLoginRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
   /api/v1/auth/login:
     post:
       operationId: auth_login_create
@@ -882,6 +934,57 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
           description: ''
+  /api/v1/me/lms/ingest:
+    post:
+      operationId: me_lms_ingest_create
+      summary: Store the Moodle data the phone fetched (device mode; throttled to
+        1 per minute and 200 per day)
+      tags:
+      - me
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LmsIngestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LmsIngestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LmsIngestRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LmsIngestResult'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
   /api/v1/me/lms/sync:
     post:
       operationId: me_lms_sync_create
@@ -981,6 +1084,58 @@ paths:
         '204':
           description: No response body
         '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+  /api/v1/me/sis/ingest:
+    post:
+      operationId: me_sis_ingest_create
+      summary: Store the SIS schedule the phone fetched (device mode; 404 unless SIS_INGEST_ENABLED;
+        throttled to 1 per minute and 50 per day)
+      tags:
+      - sis
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SisIngestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SisIngestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SisIngestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SisIngestResult'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '400':
           content:
             application/json:
               schema:
@@ -1522,6 +1677,40 @@ components:
       - model
       - os_version
       - platform
+    DeviceLoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 150
+        full_name:
+          type: string
+          default: ''
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          default: ''
+          maxLength: 254
+        moodle_user_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        site_url:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 200
+        device_secret:
+          type: string
+          minLength: 32
+          maxLength: 256
+      required:
+      - device_secret
+      - moodle_user_id
+      - site_url
+      - username
     DevicePlatformEnum:
       enum:
       - android
@@ -1584,6 +1773,218 @@ components:
           type: string
       required:
       - status
+    IngestAssignmentRequest:
+      type: object
+      properties:
+        moodle_course_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        instance_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        name:
+          type: string
+          maxLength: 255
+        due_date:
+          type: integer
+          nullable: true
+        url:
+          type: string
+          default: ''
+          maxLength: 500
+        allow_submissions_from:
+          type: integer
+          nullable: true
+      required:
+      - instance_id
+      - moodle_course_id
+      - name
+    IngestCalendarEventRequest:
+      type: object
+      properties:
+        event_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        moodle_course_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        name:
+          type: string
+          maxLength: 255
+        time_start:
+          type: integer
+        duration_seconds:
+          type: integer
+          maximum: 2592000
+          minimum: 0
+          default: 0
+        description:
+          type: string
+          default: ''
+          maxLength: 20000
+        url:
+          type: string
+          default: ''
+          maxLength: 500
+        module_name:
+          type: string
+          default: ''
+          maxLength: 64
+      required:
+      - event_id
+      - moodle_course_id
+      - name
+      - time_start
+    IngestCourseRequest:
+      type: object
+      properties:
+        moodle_course_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        code:
+          type: string
+          default: ''
+          maxLength: 64
+        name:
+          type: string
+          default: ''
+          maxLength: 255
+        start_date:
+          type: integer
+          default: 0
+      required:
+      - moodle_course_id
+    IngestGroupMemberRequest:
+      type: object
+      properties:
+        group_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        user_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        full_name:
+          type: string
+          default: ''
+          maxLength: 255
+        roles:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 64
+          maxItems: 20
+      required:
+      - group_id
+      - user_id
+    IngestGroupRequest:
+      type: object
+      properties:
+        moodle_course_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        group_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        name:
+          type: string
+          maxLength: 255
+      required:
+      - group_id
+      - moodle_course_id
+      - name
+    IngestQuizRequest:
+      type: object
+      properties:
+        moodle_course_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        instance_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        name:
+          type: string
+          maxLength: 255
+        time_open:
+          type: integer
+          nullable: true
+        time_close:
+          type: integer
+          nullable: true
+        url:
+          type: string
+          default: ''
+          maxLength: 500
+      required:
+      - instance_id
+      - moodle_course_id
+      - name
+    IngestSisEntryKindEnum:
+      enum:
+      - lecture
+      - exam
+      type: string
+      description: |-
+        * `lecture` - lecture
+        * `exam` - exam
+    IngestSisEntryRequest:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/IngestSisEntryKindEnum'
+        day:
+          type: string
+          format: date
+        course_code:
+          type: string
+          minLength: 1
+          maxLength: 64
+        start_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+          nullable: true
+        location_en:
+          type: string
+          default: ''
+          maxLength: 255
+        location_ar:
+          type: string
+          default: ''
+          maxLength: 255
+        lecturer_en:
+          type: string
+          default: ''
+          maxLength: 255
+        lecturer_ar:
+          type: string
+          default: ''
+          maxLength: 255
+        exam_name:
+          type: string
+          default: ''
+          maxLength: 255
+        is_online:
+          type: boolean
+          default: false
+      required:
+      - course_code
+      - day
+      - kind
+      - start_time
     Item:
       type: object
       description: |-
@@ -1886,6 +2287,63 @@ components:
       - starts_on
       - title
       - weekdays
+    LmsIngestRequest:
+      type: object
+      properties:
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngestCourseRequest'
+          maxItems: 200
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngestGroupRequest'
+          maxItems: 1000
+        group_members:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngestGroupMemberRequest'
+          maxItems: 5000
+        quizzes:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngestQuizRequest'
+          maxItems: 2000
+        assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngestAssignmentRequest'
+          maxItems: 2000
+        calendar_events:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngestCalendarEventRequest'
+          maxItems: 2000
+        lms_status:
+          $ref: '#/components/schemas/LmsStatusEnum'
+    LmsIngestResult:
+      type: object
+      properties:
+        status:
+          type: string
+          description: success or failed
+        items_created:
+          type: integer
+        items_updated:
+          type: integer
+        items_removed:
+          type: integer
+        last_synced_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - items_created
+      - items_removed
+      - items_updated
+      - last_synced_at
+      - status
     LmsStatus:
       type: object
       description: 'Never includes the token (hard rule #2).'
@@ -1908,14 +2366,9 @@ components:
       - status
     LmsStatusEnum:
       enum:
-      - active
       - expired
-      - disabled
       type: string
-      description: |-
-        * `active` - Active
-        * `expired` - Expired
-        * `disabled` - Disabled
+      description: '* `expired` - expired'
     LoginRequest:
       type: object
       properties:
@@ -2371,6 +2824,38 @@ components:
       required:
       - password
       - username
+    SisIngestRequest:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngestSisEntryRequest'
+          maxItems: 2000
+      required:
+      - entries
+    SisIngestResult:
+      type: object
+      properties:
+        status:
+          type: string
+          description: success or failed
+        items_created:
+          type: integer
+        items_updated:
+          type: integer
+        items_removed:
+          type: integer
+        last_synced_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - items_created
+      - items_removed
+      - items_updated
+      - last_synced_at
+      - status
     SisStatus:
       type: object
       description: 'Status fields only: the password is never returned (CLAUDE.md

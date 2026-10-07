@@ -273,15 +273,3 @@ def test_parse_login_integral_floats_become_ints() -> None:
     )
     assert (session.academic_year, session.academic_sem) == (2026, 1)
     assert isinstance(session.academic_year, int)
-
-
-def test_proxy_is_used_only_when_configured(stub) -> None:  # type: ignore[no-untyped-def]
-    fake = stub(httpx.Response(200, json=[]), httpx.Response(200, json=[]))
-    HttpSisClient("https://sis.example", proxy="http://eg-proxy:8080").schedule(
-        SisSession("1", "t")
-    )
-    assert all(c["proxy"] == "http://eg-proxy:8080" for c in fake.calls)
-
-    fake = stub(httpx.Response(200, json=[]), httpx.Response(200, json=[]))
-    HttpSisClient("https://sis.example").schedule(SisSession("1", "t"))
-    assert all("proxy" not in c for c in fake.calls)

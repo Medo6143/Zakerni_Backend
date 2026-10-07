@@ -7,8 +7,13 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.core.api.serializers import ErrorEnvelopeSerializer
-from apps.core.api.throttling import SisSyncThrottle
+from apps.core.api.serializers import ERRORS_400, ErrorEnvelopeSerializer
+from apps.core.api.throttling import SisIngestDailyThrottle, SisIngestThrottle, SisSyncThrottle
+from apps.sis.api.ingest_serializers import (
+    SisIngestResultSerializer,
+    SisIngestSerializer,
+    build_sis_entries,
+)
 from apps.sis.api.serializers import SisConnectSerializer, SisStatusSerializer, sis_status_data
 from apps.sis.selectors import sis_account_for_user
 from apps.sis.services.account import (
@@ -16,6 +21,7 @@ from apps.sis.services.account import (
     disconnect_sis_account,
     request_sis_sync,
 )
+from apps.sis.services.ingest import ingest_sis_entries
 
 
 def _enqueue(account_id: uuid.UUID, countdown: int) -> None:
@@ -86,3 +92,32 @@ class SisSyncView(APIView):
     def post(self, request: Request) -> Response:
         account = request_sis_sync(request.user, enqueue=_enqueue)
         return Response(sis_status_data(sis_account_for_user(account.user_id)), status=202)
+
+
+@extend_schema(tags=["sis"])
+class SisIngestView(APIView):
+    throttle_classes = [SisIngestThrottle, SisIngestDailyThrottle]
+
+    @extend_schema(
+        summary="Store the SIS schedule the phone fetched (device mode; 404 unless "
+        "SIS_INGEST_ENABLED; throttled to 1 per minute and 50 per day)",
+        request=SisIngestSerializer,
+        responses={
+            200: SisIngestResultSerializer,
+            401: ErrorEnvelopeSerializer,
+            404: ErrorEnvelopeSerializer,
+            429: ErrorEnvelopeSerializer,
+            **ERRORS_400,
+        },
+    )
+    def post(self, request: Request) -> Response:
+        from config import container
+
+        serializer = SisIngestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        result = ingest_sis_entries(
+            request.user,
+            build_sis_entries(serializer.validated_data),
+            build_sync=container.sync_sis_account_with,
+        )
+        return Response(SisIngestResultSerializer(result).data)

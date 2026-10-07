@@ -36,14 +36,10 @@ class _FunctionUnavailable(Exception):
 
 
 class HttpMoodleClient:
-    def __init__(
-        self, base_url: str, service_name: str, timeout: float = 10.0, proxy: str = ""
-    ) -> None:
+    def __init__(self, base_url: str, service_name: str, timeout: float = 10.0) -> None:
         self._base_url = base_url.rstrip("/")
         self._service_name = service_name
         self._timeout = timeout
-        # Optional egress proxy (e.g. Egypt-based); never logged, it may hold credentials.
-        self._proxy_kwargs: dict = {"proxy": proxy} if proxy else {}
 
     @classmethod
     def from_settings(cls) -> HttpMoodleClient:
@@ -51,7 +47,6 @@ class HttpMoodleClient:
             base_url=settings.MOODLE_BASE_URL,
             service_name=settings.MOODLE_SERVICE_NAME,
             timeout=settings.MOODLE_HTTP_TIMEOUT_SECONDS,
-            proxy=settings.MOODLE_PROXY_URL,
         )
 
     def _request(self, params: dict, *, optional: bool = False) -> dict:
@@ -62,9 +57,7 @@ class HttpMoodleClient:
         while attempts < 3:
             attempts += 1
             try:
-                response = httpx.get(
-                    url, params=params, timeout=self._timeout, **self._proxy_kwargs
-                )
+                response = httpx.get(url, params=params, timeout=self._timeout)
             except httpx.TimeoutException as exc:
                 last_exc = exc
                 continue
@@ -101,7 +94,6 @@ class HttpMoodleClient:
                     "service": self._service_name,
                 },
                 timeout=self._timeout,
-                **self._proxy_kwargs,
             )
         except httpx.HTTPError as exc:
             raise LmsUnavailable() from exc

@@ -16,6 +16,8 @@ def sync_sis_account_task(sis_account_id: str) -> str:
     account = sis_account_by_id(sis_account_id)
     if account is None:
         return "missing"
+    if not account.password_encrypted:
+        return "no_password"  # device mode: the phone pushes the schedule instead
     return container.sync_sis_account()(account).status
 
 

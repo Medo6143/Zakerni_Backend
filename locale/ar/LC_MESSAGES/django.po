@@ -1015,3 +1015,31 @@ msgstr "بيانات دخول غلط"
 #: apps/schedule/models.py
 msgid "SIS"
 msgstr "شؤون الطلاب"
+
+#: device-mode
+msgid "This account is linked to another device. Contact support to reset it."
+msgstr "هذا الحساب مرتبط بجهاز آخر. تواصل مع الدعم لإعادة التعيين."
+
+#: device-mode
+msgid "Invalid characters."
+msgstr "أحرف غير صالحة."
+
+#: device-mode
+msgid "Date out of range."
+msgstr "التاريخ خارج النطاق المسموح."
+
+#: device-mode
+msgid "Send at least one data list or lms_status."
+msgstr "أرسل قائمة بيانات واحدة على الأقل أو lms_status."
+
+#: device-mode
+msgid "Courses are required with items."
+msgstr "المقررات مطلوبة عند إرسال العناصر."
+
+#: device-mode
+msgid "Reset device binding"
+msgstr "إعادة تعيين ربط الجهاز"
+
+#: device-mode
+msgid "Device binding reset for %(count)d user(s)."
+msgstr "تمت إعادة تعيين ربط الجهاز لعدد %(count)d مستخدم."

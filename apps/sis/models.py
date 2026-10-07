@@ -24,7 +24,8 @@ class SisAccount(UUIDModel, TimeStampedModel):
         "accounts.User", on_delete=models.CASCADE, related_name="sis_account"
     )
     username = models.CharField(_("username"), max_length=64)
-    password_encrypted = models.TextField()
+    # Empty in device mode: the SIS password stays on the student's phone.
+    password_encrypted = models.TextField(blank=True, default="")
     status = models.CharField(max_length=24, choices=Status.choices, default=Status.ACTIVE)
     last_synced_at = models.DateTimeField(null=True, blank=True)
     last_sync_error = models.TextField(blank=True)
@@ -38,7 +39,7 @@ class SisAccount(UUIDModel, TimeStampedModel):
         self.password_encrypted = encrypt(raw_password)
 
     def get_password(self) -> str:
-        return decrypt(self.password_encrypted)
+        return decrypt(self.password_encrypted) if self.password_encrypted else ""
 
     def __str__(self) -> str:
         return f"SisAccount<{self.user_id}>"

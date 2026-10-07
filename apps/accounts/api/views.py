@@ -9,6 +9,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.accounts.api.serializers import (
+    DeviceLoginSerializer,
     LoginResponseSerializer,
     LoginSerializer,
     LogoutSerializer,
@@ -16,9 +17,11 @@ from apps.accounts.api.serializers import (
     TokenPairSerializer,
     UserSerializer,
     UserUpdateSerializer,
+    build_login_payload,
 )
 from apps.accounts.api.throttling import LoginRateThrottle
 from apps.accounts.services.auth import LoginWithLms
+from apps.accounts.services.device_auth import DeviceLoginData, login_with_device
 from apps.accounts.services.profile import delete_account, update_profile
 from apps.core.api.serializers import ERRORS_400, ErrorEnvelopeSerializer
 from apps.core.exceptions import ValidationAppError
@@ -58,16 +61,33 @@ class LoginView(APIView):
             password=serializer.validated_data["password"],
         )
 
-        refresh = RefreshToken.for_user(result.user)
-        return Response(
-            {
-                "access": str(refresh.access_token),
-                "refresh": str(refresh),
-                "user": UserSerializer(result.user).data,
-                "is_new": result.is_new,
-            },
-            status=200,
-        )
+        return Response(build_login_payload(result.user, is_new=result.is_new), status=200)
+
+
+@extend_schema(tags=["auth"])
+class DeviceLoginView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes: list = []
+    throttle_classes = [LoginRateThrottle]
+    throttle_scope = "login"
+
+    @extend_schema(
+        summary="Device-bound login (device mode): the phone read Moodle itself; the "
+        "account is bound to a device secret. 404 unless LMS_FETCH_MODE=device",
+        request=DeviceLoginSerializer,
+        responses={
+            200: LoginResponseSerializer,
+            403: ErrorEnvelopeSerializer,
+            404: ErrorEnvelopeSerializer,
+            429: ErrorEnvelopeSerializer,
+            **ERRORS_400,
+        },
+    )
+    def post(self, request: Request) -> Response:
+        serializer = DeviceLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        result = login_with_device(DeviceLoginData(**serializer.validated_data))
+        return Response(build_login_payload(result.user, is_new=result.is_new), status=200)
 
 
 @extend_schema(tags=["auth"])

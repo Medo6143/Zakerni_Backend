@@ -16,6 +16,8 @@ def sync_moodle_account_task(moodle_account_id: str) -> str:
     account = moodle_account_by_id(moodle_account_id)
     if account is None:
         return "missing"
+    if not account.has_token:
+        return "no_token"  # device mode: the phone pushes the data instead
     return container.sync_moodle_account()(account).status
 
 

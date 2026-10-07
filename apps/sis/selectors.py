@@ -19,7 +19,7 @@ def sis_account_by_id(account_id: Any) -> SisAccount | None:
 
 def syncable_sis_account_ids() -> list[uuid.UUID]:
     return list(
-        SisAccount.objects.filter(status__in=SYNCABLE_STATUSES, user__is_active=True).values_list(
-            "id", flat=True
-        )
+        SisAccount.objects.filter(status__in=SYNCABLE_STATUSES, user__is_active=True)
+        .exclude(password_encrypted="")  # device mode: no password, nothing the server can fetch
+        .values_list("id", flat=True)
     )

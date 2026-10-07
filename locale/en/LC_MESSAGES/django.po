@@ -1015,3 +1015,31 @@ msgstr "Invalid credentials"
 #: apps/schedule/models.py
 msgid "SIS"
 msgstr "SIS"
+
+#: device-mode
+msgid "This account is linked to another device. Contact support to reset it."
+msgstr "This account is linked to another device. Contact support to reset it."
+
+#: device-mode
+msgid "Invalid characters."
+msgstr "Invalid characters."
+
+#: device-mode
+msgid "Date out of range."
+msgstr "Date out of range."
+
+#: device-mode
+msgid "Send at least one data list or lms_status."
+msgstr "Send at least one data list or lms_status."
+
+#: device-mode
+msgid "Courses are required with items."
+msgstr "Courses are required with items."
+
+#: device-mode
+msgid "Reset device binding"
+msgstr "Reset device binding"
+
+#: device-mode
+msgid "Device binding reset for %(count)d user(s)."
+msgstr "Device binding reset for %(count)d user(s)."

@@ -31,5 +31,21 @@ class ReportCreateThrottle(FlexibleRateMixin, UserRateThrottle):
     scope = "report_create"
 
 
+class LmsIngestThrottle(FlexibleRateMixin, UserRateThrottle):
+    scope = "lms_ingest"
+
+
+class LmsIngestDailyThrottle(FlexibleRateMixin, UserRateThrottle):
+    scope = "lms_ingest_daily"
+
+
+class SisIngestThrottle(FlexibleRateMixin, UserRateThrottle):
+    scope = "sis_ingest"
+
+
+class SisIngestDailyThrottle(FlexibleRateMixin, UserRateThrottle):
+    scope = "sis_ingest_daily"
+
+
 class SisSyncThrottle(FlexibleRateMixin, UserRateThrottle):
     scope = "sis_sync"

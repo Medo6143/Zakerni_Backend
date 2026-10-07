@@ -18,9 +18,9 @@ def moodle_account_by_id(account_id: Any) -> MoodleAccount | None:
 
 def active_moodle_account_ids() -> list[uuid.UUID]:
     return list(
-        MoodleAccount.objects.filter(
-            status=MoodleAccount.Status.ACTIVE, user__is_active=True
-        ).values_list("id", flat=True)
+        MoodleAccount.objects.filter(status=MoodleAccount.Status.ACTIVE, user__is_active=True)
+        .exclude(token_encrypted="")  # device mode: nothing the server can fetch
+        .values_list("id", flat=True)
     )
 
 

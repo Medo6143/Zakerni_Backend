@@ -88,7 +88,7 @@ def request_sis_sync(user: User, *, enqueue: Enqueue) -> SisAccount:
         raise NotFoundAppError()
     if account.status == SisAccount.Status.INVALID_CREDENTIALS:
         raise SisInvalidCredentials()
-    if account.status in SYNCABLE_STATUSES:
+    if account.status in SYNCABLE_STATUSES and account.password_encrypted:
         enqueue(account.id, 0)
     return account
 

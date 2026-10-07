@@ -75,6 +75,12 @@ class ThrottledAppError(ApplicationError):
     message = _("Too many requests. Please try again later.")
 
 
+class DeviceMismatch(ApplicationError):
+    code = "device_mismatch"
+    status = 403
+    message = _("This account is linked to another device. Contact support to reset it.")
+
+
 class SisInvalidCredentials(ApplicationError):
     # 400, not 401: a 401 would make the app try to refresh its own JWT.
     code = "sis_invalid_credentials"

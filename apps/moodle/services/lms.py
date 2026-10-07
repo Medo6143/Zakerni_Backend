@@ -25,7 +25,7 @@ def request_lms_sync(user: User, *, enqueue: Enqueue) -> MoodleAccount:
         raise NotFoundAppError()
     if account.status == MoodleAccount.Status.EXPIRED:
         raise LmsTokenExpired()
-    if account.status == MoodleAccount.Status.ACTIVE:
+    if account.status == MoodleAccount.Status.ACTIVE and account.has_token:
         enqueue(account.id, 0)
     return account
 

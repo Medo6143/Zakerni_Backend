@@ -22,7 +22,8 @@ class MoodleAccount(UUIDModel, TimeStampedModel):
     )
     site_url = models.URLField()
     moodle_user_id = models.PositiveIntegerField()
-    token_encrypted = models.TextField()
+    # Empty in device mode: the Moodle token stays on the student's phone.
+    token_encrypted = models.TextField(blank=True, default="")
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
     last_synced_at = models.DateTimeField(null=True, blank=True)
     last_sync_error = models.TextField(blank=True)
@@ -36,7 +37,11 @@ class MoodleAccount(UUIDModel, TimeStampedModel):
         self.token_encrypted = encrypt(raw_token)
 
     def get_token(self) -> str:
-        return decrypt(self.token_encrypted)
+        return decrypt(self.token_encrypted) if self.token_encrypted else ""
+
+    @property
+    def has_token(self) -> bool:
+        return bool(self.token_encrypted)
 
     def __str__(self) -> str:
         return f"MoodleAccount<{self.user_id}>"
