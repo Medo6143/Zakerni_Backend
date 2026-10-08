@@ -23,6 +23,15 @@ class Broadcast(UUIDModel, TimeStampedModel):
         blank=True,
         related_name="broadcasts",
     )
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="direct_broadcasts",
+        verbose_name=_("recipient"),
+        help_text=_("Empty means every active student; set for a message to one user."),
+    )
     title_ar = models.CharField(_("title (Arabic)"), max_length=255)
     body_ar = models.TextField(_("body (Arabic)"))
     title_en = models.CharField(_("title (English)"), max_length=255)

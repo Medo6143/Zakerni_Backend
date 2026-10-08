@@ -17,25 +17,45 @@ from apps.broadcasts.selectors import broadcast_by_id, estimated_recipients
 from apps.broadcasts.services.send import BroadcastAlreadySent, start_broadcast
 
 
-def _enqueue(broadcast_id: Any) -> None:
+def enqueue_broadcast(broadcast_id: Any) -> None:
     from apps.broadcasts.tasks import send_broadcast
 
     send_broadcast.delay(str(broadcast_id))
+
+
+class RecipientFilter(admin.SimpleListFilter):
+    """Everyone (broadcasts) vs direct messages to one user (history)."""
+
+    title = _("audience")
+    parameter_name = "audience"
+
+    def lookups(self, request: HttpRequest, model_admin: Any) -> list[tuple[str, Any]]:
+        return [("everyone", _("Everyone")), ("direct", _("Direct message to one user"))]
+
+    def queryset(self, request: HttpRequest, queryset: QuerySet[Broadcast]) -> QuerySet[Broadcast]:
+        if self.value() == "everyone":
+            return queryset.filter(recipient__isnull=True)
+        if self.value() == "direct":
+            return queryset.filter(recipient__isnull=False)
+        return queryset
 
 
 @admin.register(Broadcast)
 class BroadcastAdmin(ModelAdmin):
     list_display = (
         "__str__",
+        "recipient_display",
         "status",
         "send_push",
         "send_telegram",
         "recipients_count",
         "sent_at",
     )
-    list_filter = ("status",)
-    search_fields = ("title_ar", "title_en")
+    list_filter = ("status", RecipientFilter)
+    search_fields = ("title_ar", "title_en", "recipient__moodle_username", "recipient__full_name")
+    list_select_related = ("recipient",)
     fieldsets = (
+        (_("Audience"), {"fields": ("recipient",)}),
         (_("Arabic"), {"fields": ("title_ar", "body_ar")}),
         (_("English"), {"fields": ("title_en", "body_en")}),
         (_("Channels"), {"fields": ("send_push", "send_telegram")}),
@@ -52,6 +72,7 @@ class BroadcastAdmin(ModelAdmin):
             },
         ),
     )
+    autocomplete_fields = ("recipient",)
     readonly_fields = (
         "estimated_recipients",
         "status",
@@ -65,6 +86,7 @@ class BroadcastAdmin(ModelAdmin):
     def get_readonly_fields(self, request: HttpRequest, obj: Broadcast | None = None) -> Any:
         if obj is not None and obj.status != Broadcast.Status.DRAFT:
             return (
+                "recipient",
                 "title_ar",
                 "body_ar",
                 "title_en",
@@ -74,6 +96,12 @@ class BroadcastAdmin(ModelAdmin):
                 *self.readonly_fields,
             )
         return self.readonly_fields
+
+    @admin.display(description=_("recipient"), ordering="recipient__moodle_username")
+    def recipient_display(self, obj: Broadcast) -> str:
+        if obj.recipient is None:
+            return str(_("Everyone"))
+        return obj.recipient.moodle_username
 
     @admin.display(description=_("estimated recipients"))
     def estimated_recipients(self, obj: Broadcast | None) -> int | str:
@@ -88,7 +116,7 @@ class BroadcastAdmin(ModelAdmin):
 
     def _start(self, request: HttpRequest, broadcast: Broadcast) -> bool:
         try:
-            start_broadcast(broadcast, enqueue=_enqueue)
+            start_broadcast(broadcast, enqueue=enqueue_broadcast)
         except BroadcastAlreadySent as exc:
             self.message_user(request, str(exc.message), messages.WARNING)
             return False

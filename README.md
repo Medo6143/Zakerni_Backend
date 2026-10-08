@@ -161,7 +161,9 @@ One dispatch test (real multi-thread row locking) only runs against PostgreSQL.
 cards, reminders sent per day (14 days) and the last 10 failed syncs; reports with
 attachments, device info, a live conversation with a send box (WebSocket), the inline
 reply fallback (both pushed to the student) and status actions;
-broadcasts with recipients preview and "Send now"; read-only sync and delivery logs.
+broadcasts with recipients preview and "Send now" (recipient column and audience filter);
+"Send notification" on a user page, or as a list action with exactly one user selected, messages
+one user in Arabic and/or English through push and Telegram; read-only sync and delivery logs.
 The Moodle token is never displayed.
 
 Moodle sync keeps only current-term courses ("In progress", date-filter fallback) and

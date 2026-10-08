@@ -24,8 +24,11 @@ class BroadcastAlreadySent(ApplicationError):
     message = _("This broadcast was already sent.")
 
 
-def broadcast_audience() -> Any:
-    """Every active student account (staff accounts are excluded)."""
+def broadcast_audience(broadcast: Broadcast | None = None) -> Any:
+    """Every active student account (staff excluded), or exactly the chosen
+    recipient of a direct message (staff allowed when chosen explicitly)."""
+    if broadcast is not None and broadcast.recipient_id is not None:
+        return User.objects.filter(pk=broadcast.recipient_id, is_active=True)
     return User.objects.filter(is_active=True, is_staff=False)
 
 
@@ -56,7 +59,7 @@ def send_broadcast(broadcast: Broadcast, *, channels: Mapping[str, NotificationC
         return broadcast.recipients_count
     codes = broadcast.channel_codes
     recipients = 0
-    for user in broadcast_audience().iterator():
+    for user in broadcast_audience(broadcast).iterator():
         if notification_exists(user=user, broadcast=broadcast):
             recipients += 1
             continue

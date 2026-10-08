@@ -1059,3 +1059,115 @@ msgstr "Set a temporary password"
 #: apps\accounts
 msgid "Temporary password for %(user)s: %(password)s (shown once)"
 msgstr "Temporary password for %(user)s: %(password)s (shown once)"
+
+#: apps\broadcasts
+msgid "Send notification"
+msgstr "Send notification"
+
+#: apps\broadcasts
+msgid "Select exactly one user to send a notification."
+msgstr "Select exactly one user to send a notification."
+
+#: apps\broadcasts
+msgid "push (%(n)s device)"
+msgstr "push (%(n)s device)"
+
+#: apps\broadcasts
+msgid "Notification to %(user)s is being sent through: %(channels)s."
+msgstr "Notification to %(user)s is being sent through: %(channels)s."
+
+#: apps\broadcasts
+msgid "Notification to %(user)s was saved in their history only: no active device or Telegram link for the selected channels."
+msgstr "Notification to %(user)s was saved in their history only: no active device or Telegram link for the selected channels."
+
+#: apps\broadcasts
+msgid "Write a title and a message in at least one language."
+msgstr "Write a title and a message in at least one language."
+
+#: apps\broadcasts
+msgid "Title (Arabic)"
+msgstr "Title (Arabic)"
+
+#: apps\broadcasts
+msgid "Message (Arabic)"
+msgstr "Message (Arabic)"
+
+#: apps\broadcasts
+msgid "Title (English)"
+msgstr "Title (English)"
+
+#: apps\broadcasts
+msgid "Message (English)"
+msgstr "Message (English)"
+
+#: apps\broadcasts
+msgid "Fill both the title and the message, or leave both empty."
+msgstr "Fill both the title and the message, or leave both empty."
+
+#: apps\broadcasts
+msgid "Select at least one channel."
+msgstr "Select at least one channel."
+
+#: apps\broadcasts
+msgid "Recipient"
+msgstr "Recipient"
+
+#: apps\broadcasts
+msgid "Name"
+msgstr "Name"
+
+#: apps\broadcasts
+msgid "Username"
+msgstr "Username"
+
+#: apps\broadcasts
+msgid "Language"
+msgstr "Language"
+
+#: apps\broadcasts
+msgid "Telegram linked"
+msgstr "Telegram linked"
+
+#: apps\broadcasts
+msgid "Yes"
+msgstr "Yes"
+
+#: apps\broadcasts
+msgid "No"
+msgstr "No"
+
+#: apps\broadcasts
+msgid "This user has no active device and no Telegram link. The message will only appear in their in-app history."
+msgstr "This user has no active device and no Telegram link. The message will only appear in their in-app history."
+
+#: apps\broadcasts
+msgid "Fill one language or both. If only one is filled, it is used for both."
+msgstr "Fill one language or both. If only one is filled, it is used for both."
+
+#: apps\broadcasts
+msgid "Cancel"
+msgstr "Cancel"
+
+#: apps\broadcasts
+msgid "recipient"
+msgstr "recipient"
+
+#: apps\broadcasts
+msgid "Empty means every active student; set for a message to one user."
+msgstr "Empty means every active student; set for a message to one user."
+
+#: apps\broadcasts
+msgid "Everyone"
+msgstr "Everyone"
+
+#: apps\broadcasts
+msgid "audience"
+msgstr "audience"
+
+#: apps\broadcasts
+msgid "Direct message to one user"
+msgstr "Direct message to one user"
+
+#: apps\broadcasts
+msgid "Audience"
+msgstr "Audience"

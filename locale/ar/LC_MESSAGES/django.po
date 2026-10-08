@@ -1059,3 +1059,115 @@ msgstr "تعيين كلمة مرور مؤقتة"
 #: apps\accounts
 msgid "Temporary password for %(user)s: %(password)s (shown once)"
 msgstr "كلمة المرور المؤقتة للمستخدم %(user)s: %(password)s (تظهر مرة واحدة)"
+
+#: apps\broadcasts
+msgid "Send notification"
+msgstr "إرسال إشعار"
+
+#: apps\broadcasts
+msgid "Select exactly one user to send a notification."
+msgstr "اختر مستخدماً واحداً فقط لإرسال إشعار."
+
+#: apps\broadcasts
+msgid "push (%(n)s device)"
+msgstr "إشعار فوري (%(n)s جهاز)"
+
+#: apps\broadcasts
+msgid "Notification to %(user)s is being sent through: %(channels)s."
+msgstr "يتم إرسال الإشعار إلى %(user)s عبر: %(channels)s."
+
+#: apps\broadcasts
+msgid "Notification to %(user)s was saved in their history only: no active device or Telegram link for the selected channels."
+msgstr "تم حفظ الإشعار إلى %(user)s في سجله فقط: لا يوجد جهاز نشط أو ربط تليجرام للقنوات المحددة."
+
+#: apps\broadcasts
+msgid "Write a title and a message in at least one language."
+msgstr "اكتب عنواناً ورسالة بلغة واحدة على الأقل."
+
+#: apps\broadcasts
+msgid "Title (Arabic)"
+msgstr "العنوان (بالعربية)"
+
+#: apps\broadcasts
+msgid "Message (Arabic)"
+msgstr "الرسالة (بالعربية)"
+
+#: apps\broadcasts
+msgid "Title (English)"
+msgstr "العنوان (بالإنجليزية)"
+
+#: apps\broadcasts
+msgid "Message (English)"
+msgstr "الرسالة (بالإنجليزية)"
+
+#: apps\broadcasts
+msgid "Fill both the title and the message, or leave both empty."
+msgstr "املأ العنوان والرسالة معاً، أو اتركهما فارغين."
+
+#: apps\broadcasts
+msgid "Select at least one channel."
+msgstr "اختر قناة واحدة على الأقل."
+
+#: apps\broadcasts
+msgid "Recipient"
+msgstr "المستلم"
+
+#: apps\broadcasts
+msgid "Name"
+msgstr "الاسم"
+
+#: apps\broadcasts
+msgid "Username"
+msgstr "اسم المستخدم"
+
+#: apps\broadcasts
+msgid "Language"
+msgstr "اللغة"
+
+#: apps\broadcasts
+msgid "Telegram linked"
+msgstr "تليجرام مربوط"
+
+#: apps\broadcasts
+msgid "Yes"
+msgstr "نعم"
+
+#: apps\broadcasts
+msgid "No"
+msgstr "لا"
+
+#: apps\broadcasts
+msgid "This user has no active device and no Telegram link. The message will only appear in their in-app history."
+msgstr "لا يملك هذا المستخدم جهازاً نشطاً ولا ربط تليجرام. ستظهر الرسالة في سجل الإشعارات داخل التطبيق فقط."
+
+#: apps\broadcasts
+msgid "Fill one language or both. If only one is filled, it is used for both."
+msgstr "املأ لغة واحدة أو اللغتين. إذا ملأت لغة واحدة فقط تُستخدم للغتين."
+
+#: apps\broadcasts
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: apps\broadcasts
+msgid "recipient"
+msgstr "المستلم"
+
+#: apps\broadcasts
+msgid "Empty means every active student; set for a message to one user."
+msgstr "فارغ يعني كل الطلاب النشطين؛ يُحدَّد عند الإرسال إلى مستخدم واحد."
+
+#: apps\broadcasts
+msgid "Everyone"
+msgstr "الجميع"
+
+#: apps\broadcasts
+msgid "audience"
+msgstr "الجمهور"
+
+#: apps\broadcasts
+msgid "Direct message to one user"
+msgstr "رسالة مباشرة إلى مستخدم واحد"
+
+#: apps\broadcasts
+msgid "Audience"
+msgstr "الجمهور"

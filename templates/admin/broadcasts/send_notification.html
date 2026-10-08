@@ -1,0 +1,43 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+    <div class="border border-base-200 rounded-default mb-6 p-4 dark:border-base-800">
+        <h2 class="font-semibold mb-2">{% trans "Recipient" %}</h2>
+        <dl class="grid grid-cols-2 gap-2 text-sm">
+            <dt>{% trans "Name" %}</dt><dd>{{ target.full_name|default:"-" }}</dd>
+            <dt>{% trans "Username" %}</dt><dd>{{ target.moodle_username }}</dd>
+            <dt>{% trans "Language" %}</dt><dd>{{ target.get_language_display }}</dd>
+            <dt>{% trans "Active devices" %}</dt><dd id="channel-devices">{{ availability.active_devices }}</dd>
+            <dt>{% trans "Telegram linked" %}</dt><dd id="channel-telegram">{% if availability.telegram_linked %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+        </dl>
+        {% if not availability.any_available %}
+            <p class="mt-3 text-sm text-red-600">{% trans "This user has no active device and no Telegram link. The message will only appear in their in-app history." %}</p>
+        {% endif %}
+    </div>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="mb-4 text-red-600 text-sm">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <p class="mb-4 text-sm opacity-80">{% trans "Fill one language or both. If only one is filled, it is used for both." %}</p>
+        {% for field in form %}
+            <div class="mb-4">
+                {% if field.field.widget.input_type == "checkbox" %}
+                    <label class="flex items-center gap-2">{{ field }} <span>{{ field.label }}</span></label>
+                {% else %}
+                    <label class="block font-medium mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                {% endif %}
+                {% if field.errors %}<div class="text-red-600 text-sm">{{ field.errors }}</div>{% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="bg-primary-600 font-medium px-4 py-2 rounded-default text-white">{% trans "Send notification" %}</button>
+        <a href="{{ back_url }}" class="ms-4 underline">{% trans "Cancel" %}</a>
+    </form>
+</div>
+{% endblock %}
