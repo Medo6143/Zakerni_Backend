@@ -157,6 +157,8 @@ One dispatch test (real multi-thread row locking) only runs against PostgreSQL.
 
 ## Admin
 
+The admin theme (indigo palette, IBM Plex Sans Arabic, custom login and dashboard) lives in `static/admin/zakerni.css`, `static/fonts`, `templates/admin/` and the `UNFOLD` dict in `config/settings/base.py` (see docs/07-design-system.md, section 5b). `collectstatic` must include it.
+
 `/admin/` (Unfold, Arabic and English via the language switcher). Dashboard with KPI
 cards, reminders sent per day (14 days) and the last 10 failed syncs; reports with
 attachments, device info, a live conversation with a send box (WebSocket), the inline

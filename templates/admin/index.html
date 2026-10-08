@@ -15,13 +15,31 @@
 {% endblock %}
 
 {% block content %}
-    <div class="flex flex-col gap-8 mb-8">
-        <div class="grid gap-4 md:grid-cols-3">
+    <div class="flex flex-col gap-8 mb-8 zk-dashboard">
+        <section class="zk-hero">
+            <div class="zk-hero__text">
+                <h2 class="zk-hero__title">{% trans "Zakerni dashboard" %}</h2>
+                <p class="zk-hero__subtitle">{% trans "Reminders, devices and support at a glance." %}</p>
+            </div>
+            <nav class="zk-actions" aria-label="{% trans 'Quick actions' %}">
+                {% for action in zakerni_quick_actions %}
+                    <a class="zk-action" href="{{ action.url }}">
+                        <span class="material-symbols-outlined">{{ action.icon }}</span>
+                        <span>{{ action.title }}</span>
+                    </a>
+                {% endfor %}
+            </nav>
+        </section>
+
+        <div class="zk-kpis">
             {% for kpi in zakerni_kpis %}
-                {% component "unfold/components/card.html" with icon=kpi.icon %}
-                    {% component "unfold/components/text.html" %}{{ kpi.title }}{% endcomponent %}
-                    {% component "unfold/components/title.html" %}{{ kpi.value }}{% endcomponent %}
-                {% endcomponent %}
+                <div class="zk-kpi zk-kpi--{{ kpi.accent }}">
+                    <span class="zk-kpi__icon material-symbols-outlined">{{ kpi.icon }}</span>
+                    <div class="zk-kpi__body">
+                        <div class="zk-kpi__label">{{ kpi.title }}</div>
+                        <div class="zk-kpi__value">{{ kpi.value }}</div>
+                    </div>
+                </div>
             {% endfor %}
         </div>
 

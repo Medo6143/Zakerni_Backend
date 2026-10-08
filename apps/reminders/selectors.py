@@ -58,3 +58,14 @@ def sent_reminders_per_day(since: datetime, zone: tzinfo) -> dict[date, int]:
         .order_by("day")
     )
     return {row["day"]: row["total"] for row in rows}
+
+
+def failed_reminders_per_day(since: datetime, zone: tzinfo) -> dict[date, int]:
+    rows = (
+        ScheduledReminder.objects.filter(status=ScheduledReminder.Status.FAILED, send_at__gte=since)
+        .annotate(day=TruncDate("send_at", tzinfo=zone))
+        .values("day")
+        .annotate(total=Count("id"))
+        .order_by("day")
+    )
+    return {row["day"]: row["total"] for row in rows}

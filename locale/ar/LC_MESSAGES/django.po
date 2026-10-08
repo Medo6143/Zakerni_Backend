@@ -1171,3 +1171,79 @@ msgstr "رسالة مباشرة إلى مستخدم واحد"
 #: apps\broadcasts
 msgid "Audience"
 msgstr "الجمهور"
+
+#: config/settings/base.py
+msgid "Overview"
+msgstr "نظرة عامة"
+
+#: config/settings/base.py
+msgid "Dashboard"
+msgstr "لوحة المعلومات"
+
+#: config/settings/base.py
+msgid "Devices"
+msgstr "الأجهزة"
+
+#: config/settings/base.py
+msgid "Courses and schedule"
+msgstr "المقررات والجدول"
+
+#: config/settings/base.py
+msgid "Courses"
+msgstr "المقررات"
+
+#: config/settings/base.py
+msgid "Enrollments"
+msgstr "التسجيلات"
+
+#: config/settings/base.py
+msgid "Items"
+msgstr "العناصر"
+
+#: config/settings/base.py
+msgid "Lecture schedules"
+msgstr "جداول المحاضرات"
+
+#: config/settings/base.py
+msgid "Reminder rules"
+msgstr "قواعد التذكير"
+
+#: config/settings/base.py
+msgid "Scheduled reminders"
+msgstr "التذكيرات المجدولة"
+
+#: config/settings/base.py
+msgid "Reports"
+msgstr "البلاغات"
+
+#: config/settings/base.py
+msgid "Integrations"
+msgstr "التكاملات"
+
+#: config/settings/base.py
+msgid "Moodle sync logs"
+msgstr "سجلات مزامنة مودل"
+
+#: config/settings/base.py
+msgid "Reminders failed"
+msgstr "تذكيرات فاشلة"
+
+#: config/settings/base.py
+msgid "Zakerni dashboard"
+msgstr "لوحة تحكم ذكّرني"
+
+#: config/settings/base.py
+msgid "Quick actions"
+msgstr "إجراءات سريعة"
+
+#: config/settings/base.py
+msgid "Send notification (choose a user)"
+msgstr "إرسال إشعار (اختر مستخدماً)"
+
+#: config/settings/base.py
+msgid "Never miss a quiz, TMA, exam or lecture."
+msgstr "لا يفوتك أي اختبار قصير أو واجب أو امتحان أو محاضرة."
+
+#: config/settings/base.py
+msgid "Reminders, devices and support at a glance."
+msgstr "التذكيرات والأجهزة والدعم في نظرة واحدة."

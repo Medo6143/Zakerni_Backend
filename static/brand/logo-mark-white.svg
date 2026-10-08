@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="96 90 330 350" width="330" height="350">
+  <title>Zakerni mark (white)</title>
+  <rect x="240" y="100" width="32" height="34" rx="16" fill="#FFFFFF"/>
+  <path fill="#FFFFFF" d="M256 122c-70 0-116 52-116 120v58l-32 46c-7 10 0 22 12 22h272c12 0 19-12 12-22l-32-46v-58c0-68-46-120-116-120z"/>
+  <path fill="#FFFFFF" d="M216 382h80a40 40 0 0 1-80 0z"/>
+  <circle cx="238" cy="190" r="15" fill="#4F46E5"/>
+  <path d="M232 226c34 12 54 36 56 72v4h-70" fill="none" stroke="#4F46E5" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="352" cy="146" r="44" fill="#F59E0B" stroke="#4F46E5" stroke-width="16"/>
+</svg>

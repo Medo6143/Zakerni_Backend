@@ -1171,3 +1171,79 @@ msgstr "Direct message to one user"
 #: apps\broadcasts
 msgid "Audience"
 msgstr "Audience"
+
+#: config/settings/base.py
+msgid "Overview"
+msgstr "Overview"
+
+#: config/settings/base.py
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: config/settings/base.py
+msgid "Devices"
+msgstr "Devices"
+
+#: config/settings/base.py
+msgid "Courses and schedule"
+msgstr "Courses and schedule"
+
+#: config/settings/base.py
+msgid "Courses"
+msgstr "Courses"
+
+#: config/settings/base.py
+msgid "Enrollments"
+msgstr "Enrollments"
+
+#: config/settings/base.py
+msgid "Items"
+msgstr "Items"
+
+#: config/settings/base.py
+msgid "Lecture schedules"
+msgstr "Lecture schedules"
+
+#: config/settings/base.py
+msgid "Reminder rules"
+msgstr "Reminder rules"
+
+#: config/settings/base.py
+msgid "Scheduled reminders"
+msgstr "Scheduled reminders"
+
+#: config/settings/base.py
+msgid "Reports"
+msgstr "Reports"
+
+#: config/settings/base.py
+msgid "Integrations"
+msgstr "Integrations"
+
+#: config/settings/base.py
+msgid "Moodle sync logs"
+msgstr "Moodle sync logs"
+
+#: config/settings/base.py
+msgid "Reminders failed"
+msgstr "Reminders failed"
+
+#: config/settings/base.py
+msgid "Zakerni dashboard"
+msgstr "Zakerni dashboard"
+
+#: config/settings/base.py
+msgid "Quick actions"
+msgstr "Quick actions"
+
+#: config/settings/base.py
+msgid "Send notification (choose a user)"
+msgstr "Send notification (choose a user)"
+
+#: config/settings/base.py
+msgid "Never miss a quiz, TMA, exam or lecture."
+msgstr "Never miss a quiz, TMA, exam or lecture."
+
+#: config/settings/base.py
+msgid "Reminders, devices and support at a glance."
+msgstr "Reminders, devices and support at a glance."
