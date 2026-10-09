@@ -16,16 +16,19 @@ def test_openapi_schema_and_swagger_are_served(anon_api) -> None:
 @pytest.mark.django_db
 def test_meta_app_is_public(anon_api, settings) -> None:
     settings.APP_MIN_SUPPORTED_VERSION = "1.2.0"
+    settings.APP_DEVELOPER_NAME = "Dev Name"
 
     response = anon_api.get("/api/v1/meta/app")
 
     assert response.status_code == 200
     assert response.json()["min_supported_version"] == "1.2.0"
+    assert response.json()["developer_name"] == "Dev Name"
     assert set(response.json()) == {
         "min_supported_version",
         "latest_version",
         "privacy_url",
         "support_telegram",
+        "developer_name",
     }
 
 

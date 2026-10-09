@@ -9,7 +9,7 @@ calls Moodle.
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from datetime import datetime
 from typing import TYPE_CHECKING
@@ -18,6 +18,7 @@ from apps.core.exceptions import NotFoundAppError
 from apps.moodle.integrations.payload_client import PayloadMoodleClient
 from apps.moodle.models import MoodleAccount
 from apps.moodle.protocols import (
+    MoodleAnnouncement,
     MoodleAssignment,
     MoodleCalendarEvent,
     MoodleCourse,
@@ -27,6 +28,8 @@ from apps.moodle.protocols import (
     MoodleQuiz,
 )
 from apps.moodle.selectors import moodle_account_for_user
+from apps.moodle.services.announcements import ingest_announcements
+from apps.notifications.protocols import NotificationChannel
 from apps.schedule.models import Course
 
 if TYPE_CHECKING:
@@ -44,6 +47,11 @@ class LmsIngestData:
     events: tuple[MoodleCalendarEvent, ...] = ()
     groups_by_course: dict[int, list[MoodleGroup]] = field(default_factory=dict)
     members_by_group: dict[int, list[MoodleCourseMember]] = field(default_factory=dict)
+    # Not a snapshot: announcements are only upserted, never removed.
+    announcements: tuple[MoodleAnnouncement, ...] = ()
+    # False for an announcements-only request: the snapshot sync is skipped (an empty
+    # snapshot would remove everything).
+    snapshot: bool = True
     token_expired: bool = False
 
 
@@ -71,7 +79,13 @@ def _pin_known_courses(courses: tuple[MoodleCourse, ...]) -> tuple[MoodleCourse,
     )
 
 
-def ingest_lms_data(user: User, data: LmsIngestData, *, build_sync: SyncFactory) -> LmsIngestResult:
+def ingest_lms_data(
+    user: User,
+    data: LmsIngestData,
+    *,
+    build_sync: SyncFactory,
+    channels: Mapping[str, NotificationChannel] | None = None,
+) -> LmsIngestResult:
     account = moodle_account_for_user(user.pk)
     if account is None:
         raise NotFoundAppError()
@@ -80,6 +94,16 @@ def ingest_lms_data(user: User, data: LmsIngestData, *, build_sync: SyncFactory)
         account.status = MoodleAccount.Status.ACTIVE
         account.last_sync_error = ""
         account.save(update_fields=["status", "last_sync_error", "updated_at"])
+
+    if not data.snapshot:
+        ingest_announcements(user, data.announcements, channels=channels or {})
+        return LmsIngestResult(
+            status="success",
+            items_created=0,
+            items_updated=0,
+            items_removed=0,
+            last_synced_at=account.last_synced_at,
+        )
 
     client = PayloadMoodleClient(
         courses_=_pin_known_courses(data.courses),
@@ -91,6 +115,8 @@ def ingest_lms_data(user: User, data: LmsIngestData, *, build_sync: SyncFactory)
         token_expired=data.token_expired,
     )
     result = build_sync(client)(account)
+    if data.announcements and result.status == "success":
+        ingest_announcements(user, data.announcements, channels=channels or {})
     account.refresh_from_db()
     return LmsIngestResult(
         status="success" if result.status == "success" else "failed",

@@ -37,6 +37,7 @@ class AppMetaView(APIView):
                     "latest_version": settings.APP_LATEST_VERSION,
                     "privacy_url": settings.APP_PRIVACY_URL,
                     "support_telegram": settings.APP_SUPPORT_TELEGRAM,
+                    "developer_name": settings.APP_DEVELOPER_NAME,
                 }
             ).data
         )

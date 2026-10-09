@@ -5,7 +5,7 @@ from typing import Any
 
 from django.db.models import QuerySet
 
-from apps.moodle.models import MoodleAccount, SyncLog
+from apps.moodle.models import CourseAnnouncement, MoodleAccount, SyncLog
 
 
 def moodle_account_for_user(user_id: Any) -> MoodleAccount | None:
@@ -30,3 +30,10 @@ def recent_failed_syncs(limit: int = 10) -> QuerySet[SyncLog]:
         .select_related("moodle_account__user")
         .order_by("-started_at")[:limit]
     )
+
+
+def announcements_for_user(user: Any, course_id: Any = None) -> QuerySet[CourseAnnouncement]:
+    queryset = CourseAnnouncement.objects.filter(user=user).select_related("course")
+    if course_id is not None:
+        queryset = queryset.filter(course_id=course_id)
+    return queryset

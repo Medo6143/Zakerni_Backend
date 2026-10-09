@@ -10,6 +10,7 @@ from rest_framework import serializers
 
 from apps.core.api.ingest_fields import BoundedListField, SafeCharField, UnixTimestampField
 from apps.moodle.protocols import (
+    MoodleAnnouncement,
     MoodleAssignment,
     MoodleCalendarEvent,
     MoodleCourse,
@@ -24,6 +25,7 @@ MAX_GROUPS = 1000
 MAX_GROUP_MEMBERS = 5000
 MAX_ACTIVITIES = 2000
 MAX_EVENTS = 2000
+MAX_ANNOUNCEMENTS = 500
 _ID_MAX = 2**31 - 1
 
 
@@ -83,7 +85,23 @@ class IngestCalendarEventSerializer(serializers.Serializer):
     module_name = SafeCharField(max_length=64, allow_blank=True, default="")
 
 
+class IngestAnnouncementSerializer(serializers.Serializer):
+    moodle_course_id = _id()
+    forum_id = _id()
+    discussion_id = _id()
+    # 0 = no group (visible to every group).
+    group_id = serializers.IntegerField(min_value=0, max_value=_ID_MAX, default=0)
+    subject = SafeCharField(max_length=255, allow_blank=True)
+    message = SafeCharField(max_length=20000, allow_blank=True, default="")
+    author_name = SafeCharField(max_length=255, allow_blank=True, default="")
+    time_created = UnixTimestampField(allow_zero=False)
+    time_modified = UnixTimestampField(allow_zero=False)
+    pinned = serializers.BooleanField(default=False)
+    url = SafeCharField(max_length=500, allow_blank=True, default="")
+
+
 _LIST_KEYS = ("courses", "groups", "group_members", "quizzes", "assignments", "calendar_events")
+_ALL_KEYS = (*_LIST_KEYS, "announcements", "lms_status")
 
 
 class LmsIngestSerializer(serializers.Serializer):
@@ -95,10 +113,13 @@ class LmsIngestSerializer(serializers.Serializer):
     quizzes = BoundedListField(max_items=MAX_ACTIVITIES, child=IngestQuizSerializer())
     assignments = BoundedListField(max_items=MAX_ACTIVITIES, child=IngestAssignmentSerializer())
     calendar_events = BoundedListField(max_items=MAX_EVENTS, child=IngestCalendarEventSerializer())
+    announcements = BoundedListField(
+        max_items=MAX_ANNOUNCEMENTS, child=IngestAnnouncementSerializer()
+    )
     lms_status = serializers.ChoiceField(choices=["expired"], required=False)
 
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
-        if not any(key in attrs for key in (*_LIST_KEYS, "lms_status")):
+        if not any(key in attrs for key in _ALL_KEYS):
             raise serializers.ValidationError(_("Send at least one data list or lms_status."))
         has_items = any(attrs.get(k) for k in ("quizzes", "assignments", "calendar_events"))
         if has_items and not attrs.get("courses") and attrs.get("lms_status") != "expired":
@@ -172,12 +193,30 @@ def build_ingest_data(validated: dict[str, Any]) -> LmsIngestData:
                 user_id=m["user_id"], full_name=m["full_name"], roles=tuple(m["roles"])
             )
         )
+    announcements = {
+        a["discussion_id"]: MoodleAnnouncement(
+            moodle_course_id=a["moodle_course_id"],
+            forum_id=a["forum_id"],
+            discussion_id=a["discussion_id"],
+            subject=a["subject"],
+            message=a["message"],
+            time_created=a["time_created"],
+            time_modified=a["time_modified"],
+            group_id=a["group_id"],
+            author_name=a["author_name"],
+            pinned=a["pinned"],
+            url=a["url"],
+        )
+        for a in validated.get("announcements", [])
+    }
     return LmsIngestData(
         courses=tuple(courses.values()),
         quizzes=tuple(quizzes.values()),
         assignments=tuple(assignments.values()),
         events=tuple(events.values()),
+        announcements=tuple(announcements.values()),
         groups_by_course=groups,
         members_by_group=members,
         token_expired=validated.get("lms_status") == "expired",
+        snapshot=any(key in validated for key in (*_LIST_KEYS, "lms_status")),
     )

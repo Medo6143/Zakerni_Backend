@@ -325,6 +325,7 @@ APP_MIN_SUPPORTED_VERSION = env("APP_MIN_SUPPORTED_VERSION", default="1.0.0")
 APP_LATEST_VERSION = env("APP_LATEST_VERSION", default="1.0.0")
 APP_PRIVACY_URL = env("APP_PRIVACY_URL", default="")
 APP_SUPPORT_TELEGRAM = env("APP_SUPPORT_TELEGRAM", default="")
+APP_DEVELOPER_NAME = env("APP_DEVELOPER_NAME", default="")
 
 
 # --- django-unfold admin -----------------------------------------------------------

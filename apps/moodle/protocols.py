@@ -51,6 +51,24 @@ class MoodleAssignment:
 
 
 @dataclass(frozen=True)
+class MoodleAnnouncement:
+    """A post of a course's "news" forum (posted by the phone, never fetched by the
+    server). ``message`` is raw HTML or text; ``group_id`` 0 means every group."""
+
+    moodle_course_id: int
+    forum_id: int
+    discussion_id: int
+    subject: str
+    message: str
+    time_created: int
+    time_modified: int
+    group_id: int = 0
+    author_name: str = ""
+    pinned: bool = False
+    url: str = ""
+
+
+@dataclass(frozen=True)
 class MoodleCalendarEvent:
     """A Moodle calendar event. ``module_name`` is empty for plain course/user/group
     events (e.g. a Teams lecture) and set (``quiz``, ``assign``) for activity events.

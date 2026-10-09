@@ -69,3 +69,46 @@ class SyncLog(UUIDModel):
         ordering = ("-started_at",)
         verbose_name = _("sync log")
         verbose_name_plural = _("sync logs")
+
+
+class CourseAnnouncement(UUIDModel, TimeStampedModel):
+    """A "news" forum post of a course, posted by the student's phone (per user on purpose:
+    group-specific posts must not leak to other students)."""
+
+    user = models.ForeignKey(
+        "accounts.User", on_delete=models.CASCADE, related_name="course_announcements"
+    )
+    course = models.ForeignKey(
+        "schedule.Course",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="announcements",
+    )
+    moodle_discussion_id = models.PositiveIntegerField()
+    forum_id = models.PositiveIntegerField()
+    group_id = models.PositiveIntegerField(default=0)
+    subject = models.CharField(_("subject"), max_length=255)
+    body = models.TextField(_("body"), blank=True)
+    author_name = models.CharField(_("author"), max_length=255, blank=True)
+    pinned = models.BooleanField(_("pinned"), default=False)
+    posted_at = models.DateTimeField(_("posted at"))
+    modified_at = models.DateTimeField(_("modified at"))
+    url = models.CharField(max_length=500, blank=True)
+    teams_url = models.CharField(max_length=500, blank=True)
+    notified_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "moodle_course_announcement"
+        ordering = ("-posted_at",)
+        verbose_name = _("course announcement")
+        verbose_name_plural = _("course announcements")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "moodle_discussion_id"], name="announcement_unique_user_discussion"
+            ),
+        ]
+        indexes = [models.Index(fields=["user", "-posted_at"], name="announcement_user_posted")]
+
+    def __str__(self) -> str:
+        return f"{self.user_id}:{self.moodle_discussion_id}"

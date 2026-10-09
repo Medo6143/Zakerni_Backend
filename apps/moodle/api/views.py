@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import uuid
 
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.core.api.pagination import CursorSetPagination
 from apps.core.api.serializers import ERRORS_400, ErrorEnvelopeSerializer
 from apps.core.api.throttling import LmsIngestDailyThrottle, LmsIngestThrottle, LmsSyncThrottle
 from apps.moodle.api.ingest_serializers import (
@@ -15,11 +16,14 @@ from apps.moodle.api.ingest_serializers import (
     build_ingest_data,
 )
 from apps.moodle.api.serializers import (
+    AnnouncementQuerySerializer,
+    AnnouncementSerializer,
     LmsConnectSerializer,
     LmsStatusSerializer,
+    PaginatedAnnouncementSerializer,
     not_connected_payload,
 )
-from apps.moodle.selectors import moodle_account_for_user
+from apps.moodle.selectors import announcements_for_user, moodle_account_for_user
 from apps.moodle.services.connection import LmsConnectData, connect_lms, disconnect_lms
 from apps.moodle.services.ingest import ingest_lms_data
 from apps.moodle.services.lms import request_lms_sync
@@ -117,5 +121,39 @@ class LmsIngestView(APIView):
             request.user,
             build_ingest_data(serializer.validated_data),
             build_sync=container.sync_moodle_account_with,
+            channels=container.notification_channels(),
         )
         return Response(LmsIngestResultSerializer(result).data)
+
+
+class AnnouncementPagination(CursorSetPagination):
+    page_size = 20
+    ordering = "-posted_at"
+
+
+@extend_schema(tags=["announcements"])
+class AnnouncementListView(APIView):
+    pagination_class = AnnouncementPagination
+
+    @extend_schema(
+        summary="Course announcements, newest posted first (cursor paginated, 20 per page)",
+        parameters=[
+            OpenApiParameter("cursor", str, OpenApiParameter.QUERY, required=False),
+            OpenApiParameter("course", str, OpenApiParameter.QUERY, required=False),
+        ],
+        responses={
+            200: PaginatedAnnouncementSerializer,
+            401: ErrorEnvelopeSerializer,
+            **ERRORS_400,
+        },
+    )
+    def get(self, request: Request) -> Response:
+        query = AnnouncementQuerySerializer(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(
+            announcements_for_user(request.user, query.validated_data.get("course")),
+            request,
+            view=self,
+        )
+        return paginator.get_paginated_response(AnnouncementSerializer(page, many=True).data)

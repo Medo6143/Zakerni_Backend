@@ -39,7 +39,7 @@ celery -A config worker -l info
 celery -A config beat -l info
 ```
 
-Phone-side fetch: accounts without a stored Moodle token (or SIS password) are skipped by the periodic syncs; their data arrives through `POST /me/lms/ingest` and `POST /me/sis/ingest` after the student connects the university from Settings (`POST /me/lms/connect`). The app has its own accounts (`/auth/register`, `/auth/signin`, `/auth/change-password`); there is no forgot-password flow, so staff use the user admin (password form or the action "Set a temporary password").
+Phone-side fetch: accounts without a stored Moodle token (or SIS password) are skipped by the periodic syncs; their data arrives through `POST /me/lms/ingest` and `POST /me/sis/ingest` after the student connects the university from Settings (`POST /me/lms/connect`). The same ingest also carries the optional `announcements` list (Moodle course news): stored per student, listed by `GET /announcements`, and new recent posts trigger a push/Telegram notification. The app has its own accounts (`/auth/register`, `/auth/signin`, `/auth/change-password`); there is no forgot-password flow, so staff use the user admin (password form or the action "Set a temporary password").
 
 Beat schedule (`config/settings/base.py`):
 
@@ -120,7 +120,7 @@ Variables (`config.settings.prod`):
 | `MOODLE_BASE_URL`, `MOODLE_SERVICE` | optional | defaults to AOU Egypt |
 | `SIS_INGEST_ENABLED` | optional | `false` by default; enables `POST /me/sis/ingest` (404 otherwise) |
 | `SIS_API_BASE_URL`, `SIS_APP_USER_ID`, `SIS_APP_USERNAME`, `SIS_APP_PASSWORD`, `SIS_BRANCH_ID` | yes for SIS | see `.env.example` |
-| `APP_MIN_SUPPORTED_VERSION`, `APP_LATEST_VERSION`, `APP_PRIVACY_URL`, `APP_SUPPORT_TELEGRAM` | optional | `GET /meta/app` |
+| `APP_MIN_SUPPORTED_VERSION`, `APP_LATEST_VERSION`, `APP_PRIVACY_URL`, `APP_SUPPORT_TELEGRAM`, `APP_DEVELOPER_NAME` | optional | `GET /meta/app` |
 | `SECURE_SSL_REDIRECT`, `SECURE_HSTS_SECONDS`, `SECURE_HSTS_INCLUDE_SUBDOMAINS`, `SECURE_HSTS_PRELOAD` | optional | defaults: true, 30 days, false, false (subdomains/preload only on your own domain) |
 | `LOG_LEVEL`, `DJANGO_LOG_LEVEL` | optional | default `INFO`; logs go to stdout, credentials scrubbed |
 | Tuning (`MOODLE_SYNC_INTERVAL_MINUTES`, `SIS_SYNC_INTERVAL_MINUTES`, `REMINDER_*`, `*_HTTP_TIMEOUT_SECONDS`, `TELEGRAM_LINK_TOKEN_TTL_MINUTES`, `DEFAULT_TIMEZONE`) | optional | see `.env.example` |

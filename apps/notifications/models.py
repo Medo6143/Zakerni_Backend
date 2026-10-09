@@ -87,6 +87,7 @@ class Notification(UUIDModel, TimeStampedModel):
         BROADCAST = "broadcast", _("Broadcast")
         REPORT_REPLY = "report_reply", _("Report reply")
         SYSTEM = "system", _("System")
+        ANNOUNCEMENT = "announcement", _("Announcement")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notifications"

@@ -1247,3 +1247,49 @@ msgstr "Never miss a quiz, TMA, exam or lecture."
 #: config/settings/base.py
 msgid "Reminders, devices and support at a glance."
 msgstr "Reminders, devices and support at a glance."
+
+#: apps/moodle/services/announcements.py
+msgid "subject"
+msgstr "subject"
+
+#: apps/moodle/services/announcements.py
+msgid "author"
+msgstr "author"
+
+#: apps/moodle/services/announcements.py
+msgid "pinned"
+msgstr "pinned"
+
+#: apps/moodle/services/announcements.py
+msgid "posted at"
+msgstr "posted at"
+
+#: apps/moodle/services/announcements.py
+msgid "modified at"
+msgstr "modified at"
+
+#: apps/moodle/services/announcements.py
+msgid "course announcement"
+msgstr "course announcement"
+
+#: apps/moodle/services/announcements.py
+msgid "course announcements"
+msgstr "course announcements"
+
+#: apps/moodle/services/announcements.py
+msgid "Announcement"
+msgstr "Announcement"
+
+#: apps/moodle/services/announcements.py
+#, python-format
+msgid "%(course)s: %(subject)s"
+msgstr "%(course)s: %(subject)s"
+
+#: apps/moodle/services/announcements.py
+msgid "Course announcements"
+msgstr "Course announcements"
+
+#: apps/moodle/services/announcements.py
+#, python-format
+msgid "%(count)d more announcements"
+msgstr "%(count)d more announcements"

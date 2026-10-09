@@ -1247,3 +1247,49 @@ msgstr "لا يفوتك أي اختبار قصير أو واجب أو امتحا
 #: config/settings/base.py
 msgid "Reminders, devices and support at a glance."
 msgstr "التذكيرات والأجهزة والدعم في نظرة واحدة."
+
+#: apps/moodle/services/announcements.py
+msgid "subject"
+msgstr "الموضوع"
+
+#: apps/moodle/services/announcements.py
+msgid "author"
+msgstr "الكاتب"
+
+#: apps/moodle/services/announcements.py
+msgid "pinned"
+msgstr "مثبّت"
+
+#: apps/moodle/services/announcements.py
+msgid "posted at"
+msgstr "وقت النشر"
+
+#: apps/moodle/services/announcements.py
+msgid "modified at"
+msgstr "وقت التعديل"
+
+#: apps/moodle/services/announcements.py
+msgid "course announcement"
+msgstr "إعلان مقرر"
+
+#: apps/moodle/services/announcements.py
+msgid "course announcements"
+msgstr "إعلانات المقررات"
+
+#: apps/moodle/services/announcements.py
+msgid "Announcement"
+msgstr "إعلان"
+
+#: apps/moodle/services/announcements.py
+#, python-format
+msgid "%(course)s: %(subject)s"
+msgstr "%(course)s: %(subject)s"
+
+#: apps/moodle/services/announcements.py
+msgid "Course announcements"
+msgstr "إعلانات المقررات"
+
+#: apps/moodle/services/announcements.py
+#, python-format
+msgid "%(count)d more announcements"
+msgstr "%(count)d إعلانات أخرى"

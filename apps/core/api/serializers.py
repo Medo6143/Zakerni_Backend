@@ -22,6 +22,7 @@ class AppMetaSerializer(serializers.Serializer):
     latest_version = serializers.CharField()
     privacy_url = serializers.CharField(allow_blank=True)
     support_telegram = serializers.CharField(allow_blank=True)
+    developer_name = serializers.CharField(allow_blank=True)
 
 
 ERRORS_400 = {400: ErrorEnvelopeSerializer}

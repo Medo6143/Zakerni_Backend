@@ -7,6 +7,43 @@ info:
 
     **Real-time report chat (WebSocket, not described by OpenAPI).** Connect to `ws://<host>/ws/v1/reports/<report_id>/?token=<JWT access token>` (admin pages use the session cookie instead). Only the report owner or staff may join: close code `4401` = missing/invalid/expired token, `4403` = not allowed. Send `{"type": "message", "body": "<text>"}`; everyone in the thread receives `{"type": "reply.created", "reply": <ReportReply>}` (same shape as in `GET /reports/{id}`), also for replies posted through REST or the admin. Validation problems come back as `{"type": "error", "error": {"code", "message", "details"}}`. See docs/05-api-spec.md.
 paths:
+  /api/v1/announcements:
+    get:
+      operationId: announcements_retrieve
+      summary: Course announcements, newest posted first (cursor paginated, 20 per
+        page)
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: string
+      - in: query
+        name: cursor
+        schema:
+          type: string
+      tags:
+      - announcements
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAnnouncement'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+          description: ''
   /api/v1/auth/change-password:
     post:
       operationId: auth_change_password_create
@@ -1669,6 +1706,73 @@ paths:
           description: ''
 components:
   schemas:
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        course:
+          allOf:
+          - $ref: '#/components/schemas/AnnouncementCourse'
+          nullable: true
+        subject:
+          type: string
+          readOnly: true
+        body:
+          type: string
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+          title: Author
+        pinned:
+          type: boolean
+          readOnly: true
+        posted_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        url:
+          type: string
+          readOnly: true
+        teams_url:
+          type: string
+          readOnly: true
+        group_id:
+          type: integer
+          readOnly: true
+      required:
+      - author_name
+      - body
+      - course
+      - group_id
+      - id
+      - modified_at
+      - pinned
+      - posted_at
+      - subject
+      - teams_url
+      - url
+    AnnouncementCourse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+      required:
+      - code
+      - id
+      - name
     AppMeta:
       type: object
       properties:
@@ -1680,7 +1784,10 @@ components:
           type: string
         support_telegram:
           type: string
+        developer_name:
+          type: string
       required:
+      - developer_name
       - latest_version
       - min_supported_version
       - privacy_url
@@ -1882,6 +1989,55 @@ components:
           type: string
       required:
       - status
+    IngestAnnouncementRequest:
+      type: object
+      properties:
+        moodle_course_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        forum_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        discussion_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+        group_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          default: 0
+        subject:
+          type: string
+          maxLength: 255
+        message:
+          type: string
+          default: ''
+          maxLength: 20000
+        author_name:
+          type: string
+          default: ''
+          maxLength: 255
+        time_created:
+          type: integer
+        time_modified:
+          type: integer
+        pinned:
+          type: boolean
+          default: false
+        url:
+          type: string
+          default: ''
+          maxLength: 500
+      required:
+      - discussion_id
+      - forum_id
+      - moodle_course_id
+      - subject
+      - time_created
+      - time_modified
     IngestAssignmentRequest:
       type: object
       properties:
@@ -2458,6 +2614,11 @@ components:
           items:
             $ref: '#/components/schemas/IngestCalendarEventRequest'
           maxItems: 2000
+        announcements:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngestAnnouncementRequest'
+          maxItems: 500
         lms_status:
           $ref: '#/components/schemas/LmsStatusEnum'
     LmsIngestResult:
@@ -2620,12 +2781,14 @@ components:
       - broadcast
       - report_reply
       - system
+      - announcement
       type: string
       description: |-
         * `reminder` - Reminder
         * `broadcast` - Broadcast
         * `report_reply` - Report reply
         * `system` - System
+        * `announcement` - Announcement
     NullEnum:
       enum:
       - null
@@ -2636,6 +2799,25 @@ components:
           type: boolean
       required:
       - defaults_confirmed
+    PaginatedAnnouncement:
+      type: object
+      properties:
+        next:
+          type: string
+          format: uri
+          nullable: true
+        previous:
+          type: string
+          format: uri
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Announcement'
+      required:
+      - next
+      - previous
+      - results
     PaginatedItem:
       type: object
       properties:
