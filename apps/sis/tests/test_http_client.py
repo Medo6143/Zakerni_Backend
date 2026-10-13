@@ -116,11 +116,11 @@ def test_student_headers() -> None:
 
 def test_student_headers_keep_numeric_values() -> None:
     session = parse_login(
-        {"IsValid": True, "Id": "25510470", "Token": "tok", "AcademicYear": 2026, "AcademicSem": 1}
+        {"IsValid": True, "Id": "2026123456", "Token": "tok", "AcademicYear": 2026, "AcademicSem": 1}
     )
 
     decoded = json.loads(base64.b64decode(student_headers(session)["stdtoken"]))
-    assert decoded == {"StudentId": "25510470", "AcademicYear": 2026, "AcademicSem": 1}
+    assert decoded == {"StudentId": "2026123456", "AcademicYear": 2026, "AcademicSem": 1}
 
 
 def test_login_cookies_are_sent_with_the_schedule(monkeypatch) -> None:

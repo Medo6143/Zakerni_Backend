@@ -1,22 +1,53 @@
 # Zakerni backend
 
-Django 5 + DRF + Celery. See `../CLAUDE.md` and `../docs/02-backend-architecture.md`
-for the rules and layering this code follows.
+Backend of **Zakerni**, a student initiative that reminds Arab Open University (Egypt)
+students of quizzes, TMAs, exams and lectures. It is not an official university application.
+Django 5 + DRF + Channels + Celery + PostgreSQL + Redis.
+
+## What it does
+
+- **App accounts** (student number + app password, JWT) with an optional, separate
+  connection to the university.
+- **Phone-side university sync:** the app signs in to Moodle itself and posts the data;
+  the server stores it and never sees the Moodle token or password. Quizzes, TMAs,
+  online (Teams) lectures, group tutor and course news are imported; activities from
+  earlier terms are ignored.
+- **Items** (quiz, TMA, exam, lecture) with weekly lecture schedules, per-item status
+  (attended, postponed, cancelled, done) and notes, and a history log.
+- **Reminders** per item type, per course and per item, delivered by **FCM push** and
+  **Telegram**, in Arabic or English, with location, tutor and Teams link.
+- **Course announcements** stored per student, with a notification for new posts.
+- **Support reports** with image attachments (Cloudinary) and a real-time chat over WebSocket.
+- **Admin panel** (Unfold) with a dashboard, broadcasts to everyone or to one student,
+  and per-user tools.
+- **University SIS** exam/lecture timetable: plumbing ready, switched off until the
+  university grants official access.
+
+## Documentation
+
+| Doc | Contents |
+|---|---|
+| [docs/10-features-and-integrations.md](docs/10-features-and-integrations.md) | Every feature end to end and every integration (Moodle, SIS, FCM, Telegram, Cloudinary) with diagrams |
+| [docs/09-sis-integration-proposal.md](docs/09-sis-integration-proposal.md) | Proposal for official SIS access (data needed, endpoints, security) |
+| [docs/05-api-spec.md](docs/05-api-spec.md) | REST and WebSocket API contract (Swagger UI at `/api/docs/`) |
+| [docs/01-system-design.md](docs/01-system-design.md), [docs/02-backend-architecture.md](docs/02-backend-architecture.md) | System design and backend layering |
+| [docs/04-erd.md](docs/04-erd.md) | Database design |
+| [docs/00-overview.md](docs/00-overview.md), [docs/08-roadmap.md](docs/08-roadmap.md) | Product scope and roadmap |
 
 ## Setup
 
+Run these from the repository root (in the original monorepo this folder is `backend/`).
+
 ```bash
-cd backend
 python -m venv .venv
 source .venv/Scripts/activate   # Windows Git Bash; use .venv/bin/activate on macOS/Linux
 pip install -r requirements/dev.txt
 
-cp ../.env.example ../.env   # docker compose reads the repo-root .env
-cp ../.env .env              # Django settings read backend/.env; set TOKEN_ENCRYPTION_KEY
-# generate a Fernet key:
+cp .env.example .env            # Django and docker compose both read .env; set the values
+# generate a Fernet key for TOKEN_ENCRYPTION_KEY:
 python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 
-# infra (from repo root)
+# infra: PostgreSQL 16 + Redis 7
 docker compose up -d
 
 python manage.py migrate
@@ -62,7 +93,7 @@ instead: it removes any webhook and feeds `getUpdates` to the same handler.
 Split by environment under `config/settings/`:
 
 - `base.py` — shared settings, reads everything from env via `django-environ`
-  (all variables are listed in `../.env.example`).
+  (all variables are listed in `.env.example`).
 - `dev.py` — local development (`DJANGO_SETTINGS_MODULE=config.settings.dev`, the default in `manage.py`).
 - `test.py` — used by `pytest` (sqlite in-memory, Celery eager, fixed test keys).
 - `prod.py` — Railway/PaaS production: required secret key, hosts + CSRF origins (Railway domain added automatically), proxy SSL header, secure cookies, HSTS, WhiteNoise static files, stdout logging, explicit CORS allow-list.
@@ -177,7 +208,7 @@ with a non-`student` role). This lookup is best effort and never fails the sync.
 ## Endpoints
 
 Base path: `/api/v1/`. JWT (`Authorization: Bearer <access>`) unless marked public.
-Errors always use `{"error": {"code", "message", "details"}}`. Full contract: `../docs/05-api-spec.md`.
+Errors always use `{"error": {"code", "message", "details"}}`. Full contract: `docs/05-api-spec.md`.
 
 | Method | Path | Notes |
 |---|---|---|
