@@ -27,13 +27,12 @@ from apps.accounts.services.auth import LoginWithLms
 from apps.accounts.services.profile import delete_account, update_profile
 from apps.core.api.serializers import ERRORS_400, ErrorEnvelopeSerializer
 from apps.core.exceptions import ValidationAppError
-from apps.moodle.integrations.http_client import HttpMoodleClient
 from apps.notifications.services.devices import deactivate_device_token
+from config import container
 
 
 def _login_service() -> LoginWithLms:
-    client = HttpMoodleClient.from_settings()
-    return LoginWithLms(auth_client=client, data_client=client)
+    return container.login_with_lms()
 
 
 @extend_schema(tags=["auth"])

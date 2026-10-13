@@ -10,6 +10,7 @@ back to ``pending`` with ``send_at += 2 min`` until 3 attempts; rows more than
 
 from __future__ import annotations
 
+import logging
 import uuid
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
@@ -20,13 +21,14 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.notifications.models import Notification
-from apps.notifications.protocols import Message, NotificationChannel
+from apps.notifications.protocols import DeliveryResult, Message, NotificationChannel
 from apps.notifications.services.history import record_notification
 from apps.reminders.models import ScheduledReminder
 from apps.reminders.selectors import due_reminder_ids
 from apps.reminders.services.messages import render_reminder_message
 
 Status = ScheduledReminder.Status
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -101,7 +103,11 @@ class DispatchDueReminders:
                 return
 
             message = render_reminder_message(item, user=row.user, now=now)
-            result = channel.send(row.user, message)
+            try:
+                result = channel.send(row.user, message)
+            except Exception as exc:  # a misbehaving channel must not stop the whole batch
+                logger.exception("reminder channel %s raised", row.channel)
+                result = DeliveryResult(ok=False, retryable=True, error=f"channel_error: {exc}")
             row.attempts += 1
 
             if result.ok:

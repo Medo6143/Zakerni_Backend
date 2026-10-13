@@ -15,12 +15,7 @@ from unfold.decorators import action
 from apps.broadcasts.models import Broadcast
 from apps.broadcasts.selectors import broadcast_by_id, estimated_recipients
 from apps.broadcasts.services.send import BroadcastAlreadySent, start_broadcast
-
-
-def enqueue_broadcast(broadcast_id: Any) -> None:
-    from apps.broadcasts.tasks import send_broadcast
-
-    send_broadcast.delay(str(broadcast_id))
+from apps.broadcasts.tasks import enqueue_broadcast
 
 
 class RecipientFilter(admin.SimpleListFilter):

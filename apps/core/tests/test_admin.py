@@ -82,7 +82,7 @@ def test_admin_pages_render(admin_client, path) -> None:
 def test_report_inline_reply_pushes_and_status_changes(
     admin_client, fake_clients, monkeypatch, django_capture_on_commit_callbacks
 ) -> None:
-    from apps.support.integrations.realtime import FakeReplyBroadcaster
+    from apps.support.testing import FakeReplyBroadcaster
     from config import container
 
     broadcaster = FakeReplyBroadcaster()

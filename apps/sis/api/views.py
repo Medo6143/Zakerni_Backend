@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 
+from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -9,6 +10,7 @@ from rest_framework.views import APIView
 
 from apps.core.api.serializers import ERRORS_400, ErrorEnvelopeSerializer
 from apps.core.api.throttling import SisIngestDailyThrottle, SisIngestThrottle, SisSyncThrottle
+from apps.core.exceptions import NotFoundAppError
 from apps.sis.api.ingest_serializers import (
     SisIngestResultSerializer,
     SisIngestSerializer,
@@ -113,6 +115,8 @@ class SisIngestView(APIView):
     def post(self, request: Request) -> Response:
         from config import container
 
+        if not settings.SIS_INGEST_ENABLED:
+            raise NotFoundAppError()
         serializer = SisIngestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         result = ingest_sis_entries(

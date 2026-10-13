@@ -9,9 +9,9 @@ from apps.accounts.tests.factories import UserFactory
 from apps.core.exceptions import ValidationAppError
 from apps.notifications.models import Notification
 from apps.notifications.tests.factories import DeviceFactory
-from apps.support.integrations.realtime import FakeReplyBroadcaster
 from apps.support.models import Report, ReportReply
 from apps.support.services import reports as report_services
+from apps.support.testing import FakeReplyBroadcaster
 
 pytestmark = pytest.mark.django_db
 

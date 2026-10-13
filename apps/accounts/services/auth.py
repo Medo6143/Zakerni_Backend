@@ -1,7 +1,7 @@
 """Login-with-LMS use case (Phase 1).
 
 Flow: Moodle token -> site info -> get_or_create user -> default reminder
-rules -> enqueue a background sync. Depends only on the ``MoodleDataClient``
+rules -> enqueue a background sync. Depends only on the ``MoodleSiteClient``
 / ``MoodleAuthClient`` protocols (Dependency Inversion) so tests can supply
 ``FakeMoodleClient`` instead of hitting the network.
 """
@@ -14,7 +14,7 @@ from django.db import transaction
 
 from apps.accounts.models import User
 from apps.moodle.models import MoodleAccount
-from apps.moodle.protocols import MoodleAuthClient, MoodleDataClient
+from apps.moodle.protocols import MoodleAuthClient, MoodleSiteClient
 from apps.reminders.services.rules import create_default_reminder_rules
 
 
@@ -27,7 +27,7 @@ class LoginResult:
 @dataclass(frozen=True)
 class LoginWithLms:
     auth_client: MoodleAuthClient
-    data_client: MoodleDataClient
+    data_client: MoodleSiteClient
 
     def __call__(self, username: str, password: str) -> LoginResult:
         # The password is used exactly once, here, to obtain an LMS token.

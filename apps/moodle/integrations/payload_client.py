@@ -19,7 +19,6 @@ from apps.moodle.protocols import (
     MoodleCourseMember,
     MoodleGroup,
     MoodleQuiz,
-    SiteInfo,
 )
 
 
@@ -38,9 +37,6 @@ class PayloadMoodleClient:
     def _check(self) -> None:
         if self.token_expired:
             raise LmsTokenExpired()
-
-    def site_info(self, token: str) -> SiteInfo:
-        raise NotImplementedError("the phone reads site info itself (lms connect)")
 
     def courses(self, token: str, moodle_user_id: int) -> list[MoodleCourse]:
         self._check()

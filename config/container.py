@@ -10,7 +10,9 @@ Tests swap the external clients (``moodle_client``, ``sis_client``, ``push_sende
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import Any
 
+from apps.accounts.services.auth import LoginWithLms
 from apps.moodle.integrations.http_client import HttpMoodleClient
 from apps.moodle.protocols import MoodleDataClient
 from apps.moodle.services.sync import SyncMoodleAccount
@@ -24,8 +26,16 @@ from apps.reminders.services.scheduling import ReminderSchedulingService
 from apps.sis.integrations.http_client import HttpSisClient
 from apps.sis.protocols import SisClient
 from apps.sis.services.sync import SyncSisAccount
+from apps.support.api.serializers import ReportReplySerializer
 from apps.support.integrations.realtime import ChannelsReplyBroadcaster
+from apps.support.models import ReportReply
 from apps.support.protocols import ReplyBroadcaster
+
+
+def _reply_payload(reply: ReportReply) -> dict[str, Any]:
+    """Exactly the reply shape of ``GET /reports/{id}``."""
+    return dict(ReportReplySerializer(reply).data)
+
 
 # --- external clients ----------------------------------------------------------------
 
@@ -53,7 +63,7 @@ def telegram_bot_client() -> TelegramBotClient:
 
 
 def reply_broadcaster() -> ReplyBroadcaster:
-    return ChannelsReplyBroadcaster()
+    return ChannelsReplyBroadcaster(serialize=_reply_payload)
 
 
 # --- composed services -------------------------------------------------------------
@@ -71,40 +81,30 @@ def dispatch_due_reminders() -> DispatchDueReminders:
     return DispatchDueReminders(channels=notification_channels())
 
 
-def sync_moodle_account() -> SyncMoodleAccount:
+def _sync_deps() -> dict[str, Any]:
+    """Collaborators shared by every sync service: one registry, one scheduler."""
     channels = notification_channels()
-    return SyncMoodleAccount(
-        client=moodle_client(),
-        scheduler=ReminderSchedulingService(channels=channels),
-        channels=channels,
-    )
+    return {"scheduler": ReminderSchedulingService(channels=channels), "channels": channels}
+
+
+def login_with_lms() -> LoginWithLms:
+    client = HttpMoodleClient.from_settings()
+    return LoginWithLms(auth_client=client, data_client=client)
 
 
 def sync_moodle_account_with(client: MoodleDataClient) -> SyncMoodleAccount:
-    """The Moodle sync over an already-fetched payload (device mode): same service,
-    different client."""
-    channels = notification_channels()
-    return SyncMoodleAccount(
-        client=client,
-        scheduler=ReminderSchedulingService(channels=channels),
-        channels=channels,
-    )
+    """The Moodle sync over any data client (the server's own, or a phone payload)."""
+    return SyncMoodleAccount(client=client, **_sync_deps())
+
+
+def sync_moodle_account() -> SyncMoodleAccount:
+    return sync_moodle_account_with(moodle_client())
 
 
 def sync_sis_account_with(client: SisClient) -> SyncSisAccount:
-    """The SIS sync over an already-fetched schedule (device mode)."""
-    channels = notification_channels()
-    return SyncSisAccount(
-        client=client,
-        scheduler=ReminderSchedulingService(channels=channels),
-        channels=channels,
-    )
+    """The SIS sync over any SIS client (the server's own, or a phone payload)."""
+    return SyncSisAccount(client=client, **_sync_deps())
 
 
 def sync_sis_account() -> SyncSisAccount:
-    channels = notification_channels()
-    return SyncSisAccount(
-        client=sis_client(),
-        scheduler=ReminderSchedulingService(channels=channels),
-        channels=channels,
-    )
+    return sync_sis_account_with(sis_client())

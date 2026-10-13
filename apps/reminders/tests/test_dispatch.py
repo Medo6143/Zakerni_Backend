@@ -236,3 +236,28 @@ def test_concurrent_workers_never_double_send(user) -> None:  # pragma: no cover
 
     assert len(push.sent) == 50
     assert ScheduledReminder.objects.filter(status="sent").count() == 50
+
+
+class _RaisingChannel:
+    def is_available_for(self, user) -> bool:  # type: ignore[no-untyped-def]
+        return True
+
+    def send(self, user, message):  # type: ignore[no-untyped-def]
+        raise RuntimeError("boom")
+
+
+@pytest.mark.django_db
+@freeze_time(NOW)
+def test_channel_exception_is_retried_and_does_not_stop_the_batch(user, telegram) -> None:
+    item = MoodleQuizItemFactory(user=user, scheduled_at=NOW + timedelta(days=1))
+    broken = _reminder(item, channel="push")
+    healthy = _reminder(item, channel="telegram")
+
+    stats = DispatchDueReminders(channels={"push": _RaisingChannel(), "telegram": telegram})()  # type: ignore[dict-item]
+
+    broken.refresh_from_db()
+    healthy.refresh_from_db()
+    assert stats.retried == 1 and stats.sent == 1
+    assert broken.status == "pending" and broken.attempts == 1
+    assert "channel_error" in broken.error
+    assert healthy.status == "sent"

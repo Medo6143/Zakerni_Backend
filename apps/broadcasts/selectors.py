@@ -39,6 +39,10 @@ class ChannelAvailability:
     def any_available(self) -> bool:
         return self.active_devices > 0 or self.telegram_linked
 
+    def reachable_through(self, *, push: bool, telegram: bool) -> tuple[int, bool]:
+        """Of the selected channels: (devices that get a push, whether Telegram delivers)."""
+        return (self.active_devices if push else 0, telegram and self.telegram_linked)
+
 
 def channel_availability(user: User) -> ChannelAvailability:
     """Which channels can reach ``user`` right now."""

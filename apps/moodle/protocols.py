@@ -109,11 +109,15 @@ class MoodleAuthClient(Protocol):
         ...
 
 
+class MoodleSiteClient(Protocol):
+    """Login-time lookup of the signed-in user (only the server-side login flow needs it)."""
+
+    def site_info(self, token: str) -> SiteInfo: ...
+
+
 class MoodleDataClient(Protocol):
     """All methods raise ``LmsTokenExpired`` when Moodle answers ``invalidtoken``
     and ``LmsUnavailable`` for network/server failures. Timestamps are Unix seconds."""
-
-    def site_info(self, token: str) -> SiteInfo: ...
 
     def courses(self, token: str, moodle_user_id: int) -> list[MoodleCourse]:
         """Current-term courses only (Moodle "In progress"), never past or future ones."""

@@ -146,7 +146,7 @@ class UserAdmin(DjangoUserAdmin, ModelAdmin):
     def _send_direct(
         self, request: HttpRequest, target: User, form: DirectNotificationForm, back_url: str
     ) -> HttpResponseRedirect:
-        from apps.broadcasts.admin import enqueue_broadcast
+        from apps.broadcasts.tasks import enqueue_broadcast
 
         data = form.cleaned_data
         create_direct_broadcast(
@@ -160,11 +160,13 @@ class UserAdmin(DjangoUserAdmin, ModelAdmin):
             send_telegram=data["send_telegram"],
             enqueue=enqueue_broadcast,
         )
-        availability = channel_availability(target)
+        devices, telegram = channel_availability(target).reachable_through(
+            push=data["send_push"], telegram=data["send_telegram"]
+        )
         reachable: list[str] = []
-        if data["send_push"] and availability.active_devices:
-            reachable.append(str(_("push (%(n)s device)")) % {"n": availability.active_devices})
-        if data["send_telegram"] and availability.telegram_linked:
+        if devices:
+            reachable.append(str(_("push (%(n)s device)")) % {"n": devices})
+        if telegram:
             reachable.append(str(_("Telegram")))
         if reachable:
             text = _("Notification to %(user)s is being sent through: %(channels)s.") % {

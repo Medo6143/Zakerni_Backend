@@ -15,14 +15,10 @@ All SIS calls happen before the database transaction.
 
 from __future__ import annotations
 
-import re
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -33,7 +29,6 @@ from apps.notifications.models import Notification
 from apps.notifications.protocols import Message, NotificationChannel
 from apps.notifications.services.history import notify_user
 from apps.reminders.protocols import ReminderScheduler
-from apps.schedule.models import Enrollment, Item, ItemSource, ItemType, LectureSchedule
 from apps.schedule.services.lectures import (
     expand_lecture_schedule,
     regenerate_lecture_schedule,
@@ -41,12 +36,14 @@ from apps.schedule.services.lectures import (
 )
 from apps.sis.models import SisAccount, SisSyncLog
 from apps.sis.protocols import SisClient, SisScheduleEntry
-from apps.sis.services.mappers import (
-    ExamData,
-    TimetableData,
-    map_exams,
-    map_timetable,
-    normalize_code,
+from apps.sis.selectors import CourseIndex
+from apps.sis.services.mappers import map_exams, map_timetable
+from apps.sis.services.reconcile import (
+    Counts,
+    fill_tutors,
+    local_zone,
+    reconcile_exams,
+    reconcile_timetable,
 )
 
 RECONNECT_TITLE = _("Reconnect the SIS")
@@ -56,18 +53,6 @@ RECONNECT_BODY = _(
 )
 INVALID_CREDENTIALS_ERROR = "invalid_credentials"
 
-_EXAM_FIELDS = ("course_id", "title", "location", "scheduled_at", "ends_at")
-_SCHEDULE_FIELDS = (
-    "course_id",
-    "title",
-    "weekdays",
-    "start_time",
-    "duration_minutes",
-    "location",
-    "starts_on",
-    "ends_on",
-)
-
 
 @dataclass(frozen=True)
 class SisSyncResult:
@@ -76,48 +61,6 @@ class SisSyncResult:
     items_updated: int = 0
     items_removed: int = 0
     error: str = ""
-
-
-@dataclass
-class _Counts:
-    created: int = 0
-    updated: int = 0
-    removed: int = 0
-
-
-def _local_zone() -> ZoneInfo:
-    try:
-        return ZoneInfo(settings.DEFAULT_TIMEZONE)
-    except (ZoneInfoNotFoundError, ValueError):
-        return ZoneInfo("Africa/Cairo")
-
-
-_GROUP_SUFFIX = re.compile(r"\s*\([^)]*\)\s*$")
-
-
-def _code_tokens(code: str) -> set[str]:
-    upper = code.upper()
-    tokens = {normalize_code(t) for t in upper.replace("_", " ").replace("-", " ").split()}
-    return {t for t in tokens if t} | {normalize_code(upper)}
-
-
-class _CourseIndex:
-    """SIS course code -> the student's active enrollment with that code."""
-
-    def __init__(self, user_id: Any) -> None:
-        self._enrollments = list(
-            Enrollment.objects.filter(user_id=user_id, is_active=True).select_related("course")
-        )
-
-    def find(self, sis_code: str) -> Enrollment | None:
-        # The SIS appends the student's group, e.g. "EL112 (28)"; match on the code alone.
-        wanted = normalize_code(_GROUP_SUFFIX.sub("", sis_code))
-        if not wanted:
-            return None
-        for enrollment in self._enrollments:
-            if wanted in _code_tokens(enrollment.course.code):
-                return enrollment
-        return None
 
 
 class SyncSisAccount:
@@ -157,18 +100,20 @@ class SyncSisAccount:
         self, account: SisAccount, entries: list[SisScheduleEntry], started_at: datetime
     ) -> SisSyncResult:
         language = account.user.language
-        exams = map_exams(entries, zone=_local_zone(), language=language)
+        exams = map_exams(entries, zone=local_zone(), language=language)
         timetable = map_timetable(entries, language=language)
-        counts = _Counts()
+        counts = Counts()
         with transaction.atomic():
             # Serialises concurrent syncs of the same account (idempotent task).
             SisAccount.objects.select_for_update().filter(pk=account.pk).first()
-            courses = _CourseIndex(account.user_id)
-            touched, cancelled = self._upsert_exams(account, exams, courses, counts)
-            changed_schedules, new_schedules, gone = self._upsert_timetable(
-                account, timetable, courses, counts
+            courses = CourseIndex(account.user_id)
+            touched, cancelled = reconcile_exams(
+                account.user_id, self._now(), exams, courses, counts
             )
-            self._fill_tutors(timetable, courses)
+            changed_schedules, new_schedules, gone = reconcile_timetable(
+                account.user_id, timetable, courses, counts
+            )
+            fill_tutors(timetable, courses)
             finished_at = self._now()
             account.status = SisAccount.Status.ACTIVE
             account.last_synced_at = finished_at
@@ -201,134 +146,6 @@ class SyncSisAccount:
             items_updated=counts.updated,
             items_removed=counts.removed,
         )
-
-    def _upsert_exams(
-        self,
-        account: SisAccount,
-        exams: list[ExamData],
-        courses: _CourseIndex,
-        counts: _Counts,
-    ) -> tuple[list[Item], list[Item]]:
-        existing = {
-            item.external_id: item
-            for item in Item.objects.select_for_update().filter(
-                user_id=account.user_id, source=ItemSource.SIS, type=ItemType.EXAM
-            )
-        }
-        touched: list[Item] = []
-        for data in exams:
-            enrollment = courses.find(data.course_code)
-            values: dict[str, Any] = {
-                "course_id": enrollment.course_id if enrollment else None,
-                "title": data.title,
-                "location": data.location,
-                "scheduled_at": data.scheduled_at,
-                "ends_at": data.ends_at,
-            }
-            item = existing.get(data.external_id)
-            if item is None:
-                item = Item.objects.create(
-                    user_id=account.user_id,
-                    type=ItemType.EXAM,
-                    source=ItemSource.SIS,
-                    external_id=data.external_id,
-                    **values,
-                )
-                counts.created += 1
-                touched.append(item)
-                continue
-            changed = [name for name in _EXAM_FIELDS if getattr(item, name) != values[name]]
-            revived = item.deleted_at is not None
-            if not changed and not revived:
-                continue
-            for name in changed:
-                setattr(item, name, values[name])
-            item.deleted_at = None
-            item.save()
-            counts.updated += 1
-            touched.append(item)
-
-        now = self._now()
-        seen = {d.external_id for d in exams}
-        removed = [
-            item
-            for item in existing.values()
-            if item.external_id not in seen
-            and item.deleted_at is None
-            and (item.scheduled_at is None or item.scheduled_at >= now)
-        ]
-        for item in removed:
-            item.deleted_at = now
-            item.save(update_fields=["deleted_at", "updated_at"])
-        counts.removed += len(removed)
-        return touched, removed
-
-    def _upsert_timetable(
-        self,
-        account: SisAccount,
-        timetable: list[TimetableData],
-        courses: _CourseIndex,
-        counts: _Counts,
-    ) -> tuple[list[LectureSchedule], list[LectureSchedule], list[LectureSchedule]]:
-        existing = {
-            schedule.external_id: schedule
-            for schedule in LectureSchedule.objects.select_for_update().filter(
-                user_id=account.user_id, source=ItemSource.SIS
-            )
-        }
-        zone_name = str(_local_zone())
-        changed_schedules: list[LectureSchedule] = []
-        new_schedules: list[LectureSchedule] = []
-        for data in timetable:
-            enrollment = courses.find(data.course_code)
-            values: dict[str, Any] = {
-                "course_id": enrollment.course_id if enrollment else None,
-                "title": data.course_code[:255],
-                "weekdays": [data.weekday],
-                "start_time": data.start_time,
-                "duration_minutes": data.duration_minutes,
-                "location": data.location,
-                "starts_on": data.starts_on,
-                "ends_on": data.ends_on,
-            }
-            schedule = existing.get(data.external_id)
-            if schedule is None:
-                new_schedules.append(
-                    LectureSchedule.objects.create(
-                        user_id=account.user_id,
-                        source=ItemSource.SIS,
-                        external_id=data.external_id,
-                        timezone=zone_name,
-                        **values,
-                    )
-                )
-                counts.created += 1
-                continue
-            changed = [name for name in _SCHEDULE_FIELDS if getattr(schedule, name) != values[name]]
-            if not changed:
-                continue
-            for name in changed:
-                setattr(schedule, name, values[name])
-            schedule.save()
-            changed_schedules.append(schedule)
-            counts.updated += 1
-
-        seen = {d.external_id for d in timetable}
-        gone = [s for key, s in existing.items() if key not in seen]
-        counts.removed += len(gone)
-        return changed_schedules, new_schedules, gone
-
-    @staticmethod
-    def _fill_tutors(timetable: list[TimetableData], courses: _CourseIndex) -> None:
-        """Only fills an empty tutor: the Moodle sync (group members) wins."""
-        for data in timetable:
-            if not data.lecturer:
-                continue
-            enrollment = courses.find(data.course_code)
-            if enrollment is None or enrollment.tutor_name:
-                continue
-            enrollment.tutor_name = data.lecturer
-            enrollment.save(update_fields=["tutor_name", "updated_at"])
 
     def _mark_invalid(self, account: SisAccount) -> None:
         with transaction.atomic():

@@ -11,10 +11,10 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 from apps.core.exceptions import NotFoundAppError
+from apps.core.ingest import IngestResult
 from apps.moodle.integrations.payload_client import PayloadMoodleClient
 from apps.moodle.models import MoodleAccount
 from apps.moodle.protocols import (
@@ -55,13 +55,7 @@ class LmsIngestData:
     token_expired: bool = False
 
 
-@dataclass(frozen=True)
-class LmsIngestResult:
-    status: str  # "success" | "failed"
-    items_created: int
-    items_updated: int
-    items_removed: int
-    last_synced_at: datetime | None
+LmsIngestResult = IngestResult
 
 
 def _pin_known_courses(courses: tuple[MoodleCourse, ...]) -> tuple[MoodleCourse, ...]:
@@ -118,10 +112,4 @@ def ingest_lms_data(
     if data.announcements and result.status == "success":
         ingest_announcements(user, data.announcements, channels=channels or {})
     account.refresh_from_db()
-    return LmsIngestResult(
-        status="success" if result.status == "success" else "failed",
-        items_created=result.items_created,
-        items_updated=result.items_updated,
-        items_removed=result.items_removed,
-        last_synced_at=account.last_synced_at,
-    )
+    return IngestResult.from_sync(result, account.last_synced_at)
