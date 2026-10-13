@@ -162,7 +162,7 @@ Provides the official exam timetable and class timetable. **Status: plumbing rea
 
 - The backend has `POST /me/sis/ingest` (gated by `SIS_INGEST_ENABLED`, default off) that runs the existing `SyncSisAccount` over normalized schedule entries: exams become exam items, timetable rows become weekly lecture schedules linked to courses by course code (a group suffix such as `EL112 (28)` is ignored when matching).
 - The app has a phone-side SIS client behind the `EXPO_PUBLIC_SIS_ENABLED` flag. The SIS password stays on the phone.
-- The SIS protects its API against access from outside its own web client. Reliable use needs **official access from the university** (API key or allow-listing); the request is written in `09-sis-integration-proposal.md`. No attempt is made to bypass that protection.
+- The SIS protects its API against access from outside its own web client. Reliable use needs **official access from the university** (API key or allow-listing). No attempt is made to bypass that protection.
 
 ### 6.3 Firebase Cloud Messaging (push)
 `FcmChannel` uses `firebase-admin` with a service account provided as `FIREBASE_CREDENTIALS_JSON` (or a file path). Devices register `POST /devices` with an FCM token; an invalid token deactivates the device. Push needs a development/production build of the app (not Expo Go).

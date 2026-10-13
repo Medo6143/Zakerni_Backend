@@ -28,7 +28,6 @@ Django 5 + DRF + Channels + Celery + PostgreSQL + Redis.
 | Doc | Contents |
 |---|---|
 | [docs/10-features-and-integrations.md](docs/10-features-and-integrations.md) | Every feature end to end and every integration (Moodle, SIS, FCM, Telegram, Cloudinary) with diagrams |
-| [docs/09-sis-integration-proposal.md](docs/09-sis-integration-proposal.md) | Proposal for official SIS access (data needed, endpoints, security) |
 | [docs/05-api-spec.md](docs/05-api-spec.md) | REST and WebSocket API contract (Swagger UI at `/api/docs/`) |
 | [docs/01-system-design.md](docs/01-system-design.md), [docs/02-backend-architecture.md](docs/02-backend-architecture.md) | System design and backend layering |
 | [docs/04-erd.md](docs/04-erd.md) | Database design |
