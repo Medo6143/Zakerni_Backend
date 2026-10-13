@@ -252,3 +252,7 @@ scrubbing, admin dashboard, `compile_po`, Python 3.14 template-context shim),
 `schedule` (courses, enrollments, items, lecture schedules), `reminders` (rules,
 overrides, scheduling, dispatch, messages), `notifications` (devices, Telegram linking,
 channels, history), `support` (reports), `broadcasts` (admin broadcasts).
+
+## Author
+
+Built by Mohamed Wael.
