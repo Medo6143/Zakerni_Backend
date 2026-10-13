@@ -1,0 +1,34 @@
+# Secrets and local configuration: never commit these.
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+*.p12
+*.jks
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# Django
+*.sqlite3
+staticfiles/
+media/
+
+# Celery beat
+celerybeat-schedule*
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
